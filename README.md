@@ -8,6 +8,12 @@ Marketplace shopping app for **DKKart** (DGkart.com): a Flutter app for Android 
 | [`backend/`](backend) | REST API (`/api/v1`, OpenAPI docs at `/docs`): auth, catalogue, cart, orders, payments, bulk Excel import, image upload, demo data |
 | [`docs/`](docs) | Setup, architecture, Excel import guide, Play Store release checklist, store graphics |
 
+## Try it on a phone (no setup)
+
+Download **[dkkart-demo.apk](https://github.com/ugoyel/dgkart/releases/download/demo/dkkart-demo.apk)** on an Android phone and open it (allow "install unknown apps" when asked). This offline demo runs entirely on the phone with 499 sample products: sign in with any number and OTP `123456` (use 9910123503 for the admin panel); payments are simulated and nothing is saved after the app closes. It is rebuilt by the *Demo APK* workflow on every push.
+
+Build it yourself with `flutter build apk --dart-define=DEMO_MODE=true`; regenerate its catalogue with `node mobile/tool/build_demo_data.mjs` while the API is running.
+
 ## Quick start (local, no accounts needed)
 
 ```bash
