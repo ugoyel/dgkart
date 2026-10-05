@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -10,6 +11,7 @@ class NetImage extends StatelessWidget {
   final double radius;
 
   /// Decode width for thumbnails (saves memory in long lists). Null = full resolution.
+  /// Ignored on web, where the browser decodes images and resized decodes can render black.
   final int? cacheWidth;
 
   @override
@@ -29,7 +31,7 @@ class NetImage extends StatelessWidget {
               fadeInDuration: const Duration(milliseconds: 150),
               placeholder: (_, _) => placeholder,
               errorWidget: (_, _, _) => placeholder,
-              memCacheWidth: cacheWidth,
+              memCacheWidth: kIsWeb ? null : cacheWidth,
             ),
     );
   }

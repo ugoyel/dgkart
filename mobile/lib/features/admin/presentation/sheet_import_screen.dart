@@ -92,7 +92,7 @@ class _SheetImportScreenState extends ConsumerState<SheetImportScreen> {
               for (final (col, desc) in columns)
                 ListTile(
                   dense: true,
-                  title: Text(col, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600)),
+                  title: Text(col, style: const TextStyle(fontWeight: FontWeight.w700)),
                   subtitle: Text(desc),
                 ),
             ]),
