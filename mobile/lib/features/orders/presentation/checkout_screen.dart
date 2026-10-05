@@ -94,7 +94,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       : Text(_method == PaymentMethod.cod ? 'Place order' : 'Confirm and pay'),
                 ),
                 const SizedBox(height: 8),
-                const Text('By placing your order you agree to the DKKart terms and privacy notice.',
+                const Text('By placing your order you agree to the DGkart terms and privacy notice.',
                     textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: DkColors.textMuted)),
               ]),
             ),

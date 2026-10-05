@@ -14,7 +14,7 @@ export class PaymentsService {
     this.assertPayable(order);
     const g = await this.gateway.createOrder(Math.round(order.total * 100), order.orderNumber, { orderId: order.id });
     await this.orders.attachGatewayOrder(order.id, { provider: g.provider, gatewayOrderId: g.gatewayOrderId });
-    return { ...g, orderId: order.id, orderNumber: order.orderNumber, brand: 'DKKart' };
+    return { ...g, orderId: order.id, orderNumber: order.orderNumber, brand: 'DGkart' };
   }
 
   async confirm(userId: string, orderId: string, c: PaymentConfirmation): Promise<Order> {

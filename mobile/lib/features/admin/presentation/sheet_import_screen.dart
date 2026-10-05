@@ -57,7 +57,7 @@ class _SheetImportScreenState extends ConsumerState<SheetImportScreen> {
   Widget build(BuildContext context) {
     final columns = _isProducts
         ? const [
-            ('sku', 'Required. Your unique product code, e.g. DK-TSHIRT-001'),
+            ('sku', 'Required. Your unique product code, e.g. DG-TSHIRT-001'),
             ('title', 'Required. Product name'),
             ('price', 'Required. Selling price in ₹'),
             ('mrp', 'Optional. Original price (shows "% off")'),

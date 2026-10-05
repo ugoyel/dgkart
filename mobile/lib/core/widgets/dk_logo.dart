@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// DKKart wordmark drawn in text (no image assets needed).
+/// DGkart wordmark drawn in text (no image assets needed).
 class DkLogo extends StatelessWidget {
   const DkLogo({super.key, this.size = 26, this.showDomain = false});
   final double size;
@@ -15,8 +15,8 @@ class DkLogo extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text('DK', style: base.copyWith(color: DkColors.navy)),
-        Text('Kart', style: base.copyWith(color: DkColors.accent)),
+        Text('DG', style: base.copyWith(color: DkColors.navy)),
+        Text('kart', style: base.copyWith(color: DkColors.accent)),
         if (showDomain)
           Padding(
             padding: const EdgeInsets.only(left: 6, bottom: 2),

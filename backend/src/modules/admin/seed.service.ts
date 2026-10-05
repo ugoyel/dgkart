@@ -84,7 +84,7 @@ export class SeedService {
           sku,
           title: [brand, item, edition, `(${variant})`].filter(Boolean).join(' '),
           description:
-            `${brand} ${item} in ${variant}. Demo listing for the DKKart catalogue.\n\n` +
+            `${brand} ${item} in ${variant}. Demo listing for the DGkart catalogue.\n\n` +
             `• Genuine ${brand} product with seller warranty\n• Ships in 1-3 business days\n• Easy 7-day returns\n\n` +
             `This is sample data and can be removed from the admin screen.`,
           brand,

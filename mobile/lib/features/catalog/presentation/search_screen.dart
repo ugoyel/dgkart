@@ -43,7 +43,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           textInputAction: TextInputAction.search,
           onSubmitted: _submit,
           decoration: InputDecoration(
-            hintText: 'Search on DKKart',
+            hintText: 'Search on DGkart',
             filled: true,
             fillColor: DkColors.surface,
             isDense: true,

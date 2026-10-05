@@ -99,7 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 24),
                 Text.rich(
                   TextSpan(children: [
-                    const TextSpan(text: 'By continuing, you agree to the DKKart '),
+                    const TextSpan(text: 'By continuing, you agree to the DGkart '),
                     TextSpan(text: 'User Agreement', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                     const TextSpan(text: ' and '),
                     TextSpan(text: 'Privacy Notice', style: TextStyle(color: Theme.of(context).colorScheme.primary)),

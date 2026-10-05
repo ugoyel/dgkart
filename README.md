@@ -1,6 +1,6 @@
-# DGkart.com · DKKart
+# DGkart.com
 
-Marketplace shopping app for **DKKart** (DGkart.com): a Flutter app for Android (Play Store), iOS and web, backed by a NestJS + PostgreSQL REST API.
+Marketplace shopping app for **DGkart** (DGkart.com): a Flutter app for Android (Play Store), iOS and web, backed by a NestJS + PostgreSQL REST API.
 
 | Folder | What it is |
 | --- | --- |
@@ -10,7 +10,7 @@ Marketplace shopping app for **DKKart** (DGkart.com): a Flutter app for Android 
 
 ## Try it on a phone (no setup)
 
-Download **[dkkart-demo.apk](https://github.com/ugoyel/dgkart/releases/download/demo/dkkart-demo.apk)** on an Android phone and open it (allow "install unknown apps" when asked). This offline demo runs entirely on the phone with 499 sample products: sign in with any number and OTP `123456` (use 9910123503 for the admin panel); payments are simulated and nothing is saved after the app closes. It is rebuilt by the *Demo APK* workflow on every push.
+Download **[dgkart-demo.apk](https://github.com/ugoyel/dgkart/releases/download/demo/dgkart-demo.apk)** on an Android phone and open it (allow "install unknown apps" when asked). This offline demo runs entirely on the phone with 499 sample products: sign in with any number and OTP `123456` (use 9910123503 for the admin panel); payments are simulated and nothing is saved after the app closes. It is rebuilt by the *Demo APK* workflow on every push.
 
 Build it yourself with `flutter build apk --dart-define=DEMO_MODE=true`; regenerate its catalogue with `node mobile/tool/build_demo_data.mjs` while the API is running.
 

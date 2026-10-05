@@ -19,8 +19,8 @@ export async function productsTemplate(): Promise<Buffer> {
     { header: 'images', key: 'images', width: 40 },
   ];
   ws.addRows([
-    { sku: 'DK-TSHIRT-001', title: 'DKKart Cotton Polo T-Shirt (Navy)', price: 499, mrp: 999, stock: 120, brand: 'DKKart', category: "Men's Clothing", condition: 'New', free_shipping: 'yes', description: '100% cotton polo, regular fit.', specs: 'Colour=Navy; Size=M; Fabric=Cotton', images: 'dk-tshirt-001_1.jpg, dk-tshirt-001_2.jpg' },
-    { sku: 'DK-EARBUD-002', title: 'Wireless Earbuds with ANC', price: 1999, mrp: 3999, stock: 40, brand: 'Bassik', category: 'Headphones & Audio', condition: 'New', free_shipping: 'yes', description: '30 hour battery, ENC mic.', specs: 'Colour=Black; Bluetooth=5.3', images: '' },
+    { sku: 'DG-TSHIRT-001', title: 'DGkart Cotton Polo T-Shirt (Navy)', price: 499, mrp: 999, stock: 120, brand: 'DGkart', category: "Men's Clothing", condition: 'New', free_shipping: 'yes', description: '100% cotton polo, regular fit.', specs: 'Colour=Navy; Size=M; Fabric=Cotton', images: 'dg-tshirt-001_1.jpg, dg-tshirt-001_2.jpg' },
+    { sku: 'DG-EARBUD-002', title: 'Wireless Earbuds with ANC', price: 1999, mrp: 3999, stock: 40, brand: 'Bassik', category: 'Headphones & Audio', condition: 'New', free_shipping: 'yes', description: '30 hour battery, ENC mic.', specs: 'Colour=Black; Bluetooth=5.3', images: '' },
   ]);
   ws.getRow(1).font = { bold: true };
   return Buffer.from(await wb.xlsx.writeBuffer());
@@ -35,9 +35,9 @@ export async function mappingTemplate(): Promise<Buffer> {
     { header: 'position', key: 'p', width: 10 },
   ];
   ws.addRows([
-    { f: 'dk-tshirt-001_1.jpg', s: 'DK-TSHIRT-001', p: 0 },
-    { f: 'dk-tshirt-001_2.jpg', s: 'DK-TSHIRT-001', p: 1 },
-    { f: 'earbuds-front.png', s: 'DK-EARBUD-002', p: 0 },
+    { f: 'dg-tshirt-001_1.jpg', s: 'DG-TSHIRT-001', p: 0 },
+    { f: 'dg-tshirt-001_2.jpg', s: 'DG-TSHIRT-001', p: 1 },
+    { f: 'earbuds-front.png', s: 'DG-EARBUD-002', p: 0 },
   ]);
   ws.getRow(1).font = { bold: true };
   return Buffer.from(await wb.xlsx.writeBuffer());

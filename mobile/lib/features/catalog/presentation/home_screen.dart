@@ -49,7 +49,7 @@ class HomeScreen extends ConsumerWidget {
                   ],
                   SectionHeader('Daily Deals', action: 'See all', onAction: () => context.push('/search/results?sort=best')),
                   _ProductRail(products: f.dailyDeals),
-                  const SectionHeader('Trending on DKKart'),
+                  const SectionHeader('Trending on DGkart'),
                   _ProductRail(products: f.trending),
                   SectionHeader('New arrivals', action: 'See all', onAction: () => context.push('/search/results?sort=newest')),
                   _ProductGrid(products: f.newArrivals),
@@ -84,7 +84,7 @@ class SearchLauncher extends StatelessWidget {
                 const Icon(Icons.search, color: DkColors.text),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(text ?? 'Search on DKKart',
+                  child: Text(text ?? 'Search on DGkart',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: text == null ? DkColors.textMuted : DkColors.text, fontSize: 15)),
                 ),

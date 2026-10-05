@@ -373,7 +373,7 @@ class DemoBackend extends Interceptor {
     final g = {'provider': 'mock', 'gatewayOrderId': 'mock_${_id()}', 'amount': ((order['total'] as num) * 100).round(), 'currency': 'INR'};
     (order['payment'] as Map)['provider'] = 'mock';
     (order['payment'] as Map)['gatewayOrderId'] = g['gatewayOrderId'];
-    return {...g, 'orderId': order['id'], 'orderNumber': order['orderNumber'], 'brand': 'DKKart'};
+    return {...g, 'orderId': order['id'], 'orderNumber': order['orderNumber'], 'brand': 'DGkart'};
   }
 
   Map<String, dynamic> _confirm(String uid, Map<String, dynamic> body) {
@@ -428,7 +428,7 @@ class DemoBackend extends Interceptor {
       case 'POST /import/products':
       case 'POST /import/image-mapping':
       case 'POST /images':
-        throw _DemoError(400, 'This is the offline demo, so files cannot be uploaded. Uploads work when the app is connected to the DKKart server.');
+        throw _DemoError(400, 'This is the offline demo, so files cannot be uploaded. Uploads work when the app is connected to the DGkart server.');
     }
     if (method == 'GET' && seg.length == 2 && seg[0] == 'jobs') {
       return _jobs.where((j) => j['id'] == seg[1]).firstOrNull ?? (throw _DemoError(404, 'Job not found'));

@@ -254,7 +254,7 @@ class _TrustRow extends StatelessWidget {
           Icon(Icons.verified_user_outlined, color: DkColors.success),
           SizedBox(width: 12),
           Expanded(
-            child: Text('DKKart Money Back Guarantee: get the item you ordered or your money back.',
+            child: Text('DGkart Money Back Guarantee: get the item you ordered or your money back.',
                 style: TextStyle(fontSize: 13)),
           ),
         ]),

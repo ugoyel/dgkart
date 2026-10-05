@@ -29,9 +29,9 @@ Tells which image file belongs to which product.
 
 | image_file_name | sku | position |
 | --- | --- | --- |
-| dk-tshirt-001_1.jpg | DK-TSHIRT-001 | 0 |
-| dk-tshirt-001_2.jpg | DK-TSHIRT-001 | 1 |
-| earbuds-front.png | DK-EARBUD-002 | 0 |
+| dg-tshirt-001_1.jpg | DG-TSHIRT-001 | 0 |
+| dg-tshirt-001_2.jpg | DG-TSHIRT-001 | 1 |
+| earbuds-front.png | DG-EARBUD-002 | 0 |
 
 `position` 0 is the main image; leave it blank to use the order of the rows. File names are matched case-insensitively. Skip this sheet if your product sheet's `images` column already lists the file names.
 

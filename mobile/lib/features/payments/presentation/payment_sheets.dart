@@ -55,7 +55,7 @@ class _RazorpaySheet {
       'order_id': session.gatewayOrderId,
       'amount': session.amountPaise,
       'currency': 'INR',
-      'name': 'DKKart',
+      'name': 'DGkart',
       'description': 'Order ${session.orderNumber}',
       'prefill': {'contact': contact, if (email != null) 'email': email},
       'theme': {'color': '#1A56DB'},

@@ -18,7 +18,7 @@ class MainShell extends ConsumerWidget {
     final cartCount = ref.watch(cartCountProvider);
     final items = <(IconData, IconData, String, Widget?)>[
       (Icons.home_outlined, Icons.home, 'Home', null),
-      (Icons.person_outline, Icons.person, 'My DKKart', null),
+      (Icons.person_outline, Icons.person, 'My DGkart', null),
       (Icons.search, Icons.search, 'Search', null),
       (
         Icons.shopping_cart_outlined,

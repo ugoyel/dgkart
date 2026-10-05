@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// DKKart brand palette. A marketplace look (white canvas, blue actions, pill
-/// buttons, dense listings) with DKKart's own colours and logo.
+/// DGkart brand palette. A marketplace look (white canvas, blue actions, pill
+/// buttons, dense listings) with DGkart's own colours and logo.
 class DkColors {
   static const primary = Color(0xFF1A56DB); // actions, links
   static const primaryDark = Color(0xFF0B3BA8);

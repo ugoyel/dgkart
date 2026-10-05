@@ -1273,7 +1273,7 @@
   },
   "info": {
     "title": "DGkart API",
-    "description": "REST API shared by the DKKart mobile app and the future DGkart.com website.",
+    "description": "REST API shared by the DGkart mobile app and the future DGkart.com website.",
     "version": "1.0.0",
     "contact": {}
   },

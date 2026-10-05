@@ -13,7 +13,7 @@ class AppConfig {
   static const String authMode = String.fromEnvironment('AUTH_MODE', defaultValue: 'dev');
 
   static const String appName = 'DGkart';
-  static const String brandName = 'DKKart';
+  static const String brandName = 'DGkart';
   static const String supportEmail = String.fromEnvironment('SUPPORT_EMAIL', defaultValue: 'support@dgkart.com');
   static const String privacyPolicyUrl =
       String.fromEnvironment('PRIVACY_POLICY_URL', defaultValue: 'https://dgkart.com/privacy');

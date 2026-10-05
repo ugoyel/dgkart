@@ -3,7 +3,7 @@ name: Demo APK
 # Builds the offline demo of the app (DEMO_MODE, no server needed) and
 # publishes it as the "demo" pre-release, so it can be downloaded straight to
 # an Android phone:
-#   https://github.com/<owner>/<repo>/releases/download/demo/dkkart-demo.apk
+#   https://github.com/<owner>/<repo>/releases/download/demo/dgkart-demo.apk
 # The APK is debug-signed: fine for trying the app, not for the Play Store.
 
 on:
@@ -38,19 +38,21 @@ jobs:
       - run: flutter pub get
       - name: Build demo APK
         run: flutter build apk --release --dart-define=DEMO_MODE=true
-      - run: cp build/app/outputs/flutter-apk/app-release.apk dkkart-demo.apk
+      - run: cp build/app/outputs/flutter-apk/app-release.apk dgkart-demo.apk
       - name: Publish to the "demo" release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          notes="Offline demo of the DKKart app, built from ${GITHUB_SHA::7}. Sign in with any 10-digit number and OTP 123456; 9910123503 opens the admin panel. Payments are simulated and nothing is saved after the app closes."
+          notes="Offline demo of the DGkart app, built from ${GITHUB_SHA::7}. Sign in with any 10-digit number and OTP 123456; 9910123503 opens the admin panel. Payments are simulated and nothing is saved after the app closes."
           if gh release view demo >/dev/null 2>&1; then
-            gh release edit demo --notes "$notes" --prerelease
+            gh release edit demo --title "DGkart demo app" --notes "$notes" --prerelease
           else
-            gh release create demo --title "DKKart demo app" --notes "$notes" --prerelease --target "$GITHUB_SHA"
+            gh release create demo --title "DGkart demo app" --notes "$notes" --prerelease --target "$GITHUB_SHA"
           fi
-          gh release upload demo dkkart-demo.apk --clobber
+          # Also publish under the app's earlier name so links already shared keep working.
+          cp dgkart-demo.apk dkkart-demo.apk
+          gh release upload demo dgkart-demo.apk dkkart-demo.apk --clobber
       - uses: actions/upload-artifact@v4
         with:
-          name: dkkart-demo-apk
-          path: mobile/dkkart-demo.apk
+          name: dgkart-demo-apk
+          path: mobile/dgkart-demo.apk

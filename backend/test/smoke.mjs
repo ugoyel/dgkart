@@ -81,7 +81,7 @@ check('cash on delivery order', cod.status === 'CONFIRMED_COD');
 const A = admin.accessToken;
 const N = 3000;
 const rows = [['sku', 'title', 'price', 'mrp', 'stock', 'brand', 'category', 'condition', 'specs', 'images']];
-for (let i = 1; i <= N; i++) rows.push([`SMK-${i}`, `Smoke Test Product ${i}`, 100 + i, 200 + i, 10, 'DKKart', 'Smoke Category', i % 2 ? 'New' : 'Refurbished', 'Colour=Red; Size=M', `smk-${i}_1.jpg`]);
+for (let i = 1; i <= N; i++) rows.push([`SMK-${i}`, `Smoke Test Product ${i}`, 100 + i, 200 + i, 10, 'DGkart', 'Smoke Category', i % 2 ? 'New' : 'Refurbished', 'Colour=Red; Size=M', `smk-${i}_1.jpg`]);
 rows.push(['', 'missing sku', 10]);
 rows.push(['SMK-BAD', 'bad price', 'abc']);
 const t0 = Date.now();

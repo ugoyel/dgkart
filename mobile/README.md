@@ -1,6 +1,6 @@
 # dgkart
 
-DKKart shopping app
+DGkart shopping app
 
 ## Getting Started
 

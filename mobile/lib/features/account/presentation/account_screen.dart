@@ -10,7 +10,7 @@ import '../../../core/widgets/dk_logo.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../auth/presentation/auth_controller.dart';
 
-/// "My DKKart" hub: purchases, watchlist, addresses, profile, admin (for the admin number).
+/// "My DGkart" hub: purchases, watchlist, addresses, profile, admin (for the admin number).
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
@@ -18,7 +18,7 @@ class AccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('My DKKart')),
+      appBar: AppBar(title: const Text('My DGkart')),
       body: ContentWidth(
         maxWidth: 760,
         child: ListView(children: [
@@ -77,7 +77,7 @@ class AccountScreen extends ConsumerWidget {
             ),
           const Padding(
             padding: EdgeInsets.all(24),
-            child: Text('DGkart.com • DKKart v1.0.0', textAlign: TextAlign.center, style: TextStyle(color: DkColors.textMuted)),
+            child: Text('DGkart.com • v1.0.0', textAlign: TextAlign.center, style: TextStyle(color: DkColors.textMuted)),
           ),
         ]),
       ),

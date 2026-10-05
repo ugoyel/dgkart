@@ -46,7 +46,7 @@ const CATEGORY_EMOJI = {
   electronics: '📱', fashion: '👗', 'home-garden': '🛋️', sports: '🏏', toys: '🧸', 'health-beauty': '💄', motors: '🏍️',
   books: '📚', jewellery: '💍',
 };
-// Soft backgrounds that suit the DKKart palette.
+// Soft backgrounds that suit the DGkart palette.
 const BACKGROUNDS = ['#eef2ff', '#fff7ed', '#ecfdf5', '#fdf2f8', '#f0f9ff', '#fefce8', '#f5f3ff', '#f1f5f9'];
 
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

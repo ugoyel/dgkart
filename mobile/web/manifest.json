@@ -1,11 +1,11 @@
 {
-    "name": "DKKart - DGkart.com",
-    "short_name": "DKKart",
+    "name": "DGkart.com",
+    "short_name": "DGkart",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#1A56DB",
-    "description": "Shop deals on DKKart",
+    "description": "Shop deals on DGkart",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
