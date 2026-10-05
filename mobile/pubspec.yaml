@@ -70,6 +70,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # Offline demo catalogue, used only by DEMO_MODE builds (about 1.7 MB).
+  assets:
+    - assets/demo/
+    - assets/demo/img/
+
   # Inter (SIL Open Font License, see assets/fonts/OFL.txt) bundled so the app
   # and the future website render identically and work offline.
   fonts:

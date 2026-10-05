@@ -18,6 +18,10 @@ class AppConfig {
   static const String privacyPolicyUrl =
       String.fromEnvironment('PRIVACY_POLICY_URL', defaultValue: 'https://dgkart.com/privacy');
 
+  /// Offline demo: API calls are answered inside the app from a bundled
+  /// catalogue (see core/network/demo_backend.dart). For previews only.
+  static const bool demoMode = bool.fromEnvironment('DEMO_MODE');
+
   static String get apiRoot => '$apiBaseUrl/api/v1';
-  static bool get useFirebase => authMode == 'firebase';
+  static bool get useFirebase => authMode == 'firebase' && !demoMode;
 }

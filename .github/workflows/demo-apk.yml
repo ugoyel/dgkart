@@ -1,0 +1,56 @@
+name: Demo APK
+
+# Builds the offline demo of the app (DEMO_MODE, no server needed) and
+# publishes it as the "demo" pre-release, so it can be downloaded straight to
+# an Android phone:
+#   https://github.com/<owner>/<repo>/releases/download/demo/dkkart-demo.apk
+# The APK is debug-signed: fine for trying the app, not for the Play Store.
+
+on:
+  push:
+    branches: [main, claude/dgkart-app]
+    paths: ['mobile/**', '.github/workflows/demo-apk.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: demo-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Build demo APK
+        run: flutter build apk --release --dart-define=DEMO_MODE=true
+      - run: cp build/app/outputs/flutter-apk/app-release.apk dkkart-demo.apk
+      - name: Publish to the "demo" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="Offline demo of the DKKart app, built from ${GITHUB_SHA::7}. Sign in with any 10-digit number and OTP 123456; 9910123503 opens the admin panel. Payments are simulated and nothing is saved after the app closes."
+          if gh release view demo >/dev/null 2>&1; then
+            gh release edit demo --notes "$notes" --prerelease
+          else
+            gh release create demo --title "DKKart demo app" --notes "$notes" --prerelease --target "$GITHUB_SHA"
+          fi
+          gh release upload demo dkkart-demo.apk --clobber
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dkkart-demo-apk
+          path: mobile/dkkart-demo.apk

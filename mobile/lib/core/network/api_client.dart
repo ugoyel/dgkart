@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/app_config.dart';
 import '../storage/token_store.dart';
 import 'api_exception.dart';
+import 'demo_backend.dart';
 
 final tokenStoreProvider = Provider<TokenStore>((ref) => TokenStore());
 
@@ -24,6 +25,7 @@ class ApiClient {
       if (token != null) options.headers['Authorization'] = 'Bearer $token';
       handler.next(options);
     }));
+    if (AppConfig.demoMode) this.dio.interceptors.add(DemoBackend());
   }
 
   final Dio dio;

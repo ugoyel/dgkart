@@ -110,6 +110,11 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 
   Future<void> _templates(BuildContext context) async {
+    if (AppConfig.demoMode) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Templates download from the DKKart server, which this offline demo does not use.')));
+      return;
+    }
     final base = '${AppConfig.apiRoot}/admin/templates';
     await showModalBottomSheet<void>(
       context: context,
