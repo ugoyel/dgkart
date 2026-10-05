@@ -39,8 +39,10 @@ class AccountScreen extends ConsumerWidget {
               leading: CircleAvatar(
                 radius: 28,
                 backgroundColor: DkColors.navy,
-                child: Text(user.displayName.characters.first.toUpperCase(),
-                    style: const TextStyle(color: Colors.white, fontSize: 22)),
+                child: (user.name?.trim().isNotEmpty ?? false)
+                    ? Text(user.name!.trim().characters.first.toUpperCase(),
+                        style: const TextStyle(color: Colors.white, fontSize: 22))
+                    : const Icon(Icons.person, color: Colors.white, size: 28),
               ),
               title: Text(user.displayName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
               subtitle: Text(user.isAdmin ? '${user.phone} • Admin' : user.phone),
