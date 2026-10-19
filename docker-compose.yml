@@ -1,0 +1,22 @@
+# Local stack: PostgreSQL + API. `docker compose up` then open http://localhost:3000/docs
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dgkart
+      POSTGRES_PASSWORD: dgkart
+      POSTGRES_DB: dgkart
+    ports: ["5432:5432"]
+    volumes: [dbdata:/var/lib/postgresql/data]
+  api:
+    build: ./backend
+    depends_on: [db]
+    env_file: ./backend/.env.example
+    environment:
+      DATABASE_URL: postgres://dgkart:dgkart@db:5432/dgkart
+      PUBLIC_BASE_URL: http://localhost:3000
+    ports: ["3000:3000"]
+    volumes: [uploads:/app/uploads]
+volumes:
+  dbdata:
+  uploads:

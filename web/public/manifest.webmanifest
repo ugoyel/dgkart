@@ -1,0 +1,9 @@
+{
+  "name": "DGkart.com",
+  "short_name": "DGkart",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0B3BA8",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
