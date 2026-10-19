@@ -17,6 +17,7 @@ import { CartModule } from './modules/cart/cart.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { PromotionsModule } from './modules/promotions/promotions.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { UsersModule } from './modules/users/users.module';
 import { WatchlistModule } from './modules/watchlist/watchlist.module';
@@ -57,6 +58,7 @@ import { WatchlistModule } from './modules/watchlist/watchlist.module';
     WatchlistModule,
     OrdersModule,
     PaymentsModule,
+    PromotionsModule,
     AdminModule,
   ],
   controllers: [AppController],
