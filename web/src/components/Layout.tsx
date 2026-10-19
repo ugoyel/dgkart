@@ -7,7 +7,7 @@ import { ds } from '../data';
 import type { AdminReminder, Category } from '../data';
 import { date } from '../lib/format';
 import { store } from '../lib/storage';
-import { useAuth, useCart, usePromos } from '../state/AppState';
+import { cssUrl, isLight, useAuth, useCart, usePromos } from '../state/AppState';
 import { DecorStrip, Motif } from './FestivalArt';
 import { Icon } from './Icon';
 import { Logo } from './ui';
@@ -73,13 +73,42 @@ function SearchBar({ categories }: { categories: Category[] }) {
   };
   return (
     <form className="search" role="search" onSubmit={submit}>
-      <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Search in category" className="search-cat">
-        <option value="">All</option>
-        {categories.filter((c) => !c.parentId).map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
-      </select>
-      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search on ${site.name}`} aria-label="Search products" enterKeyHint="search" />
-      <button type="submit" aria-label="Search"><Icon name="search" /></button>
+      <div className="search-box">
+        <Icon name="search" size={20} className="search-icon" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search for anything" aria-label="Search products" enterKeyHint="search" />
+        <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Search in category" className="search-cat only-desktop">
+          <option value="">All Categories</option>
+          {categories.filter((c) => !c.parentId).map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
+        </select>
+      </div>
+      <button type="submit" className="search-btn"><span className="only-desktop">Search</span><Icon name="search" size={22} className="only-mobile" /></button>
     </form>
+  );
+}
+
+/** "Shop by category" mega menu (desktop). */
+function CategoryMenu({ categories }: { categories: Category[] }) {
+  const [open, setOpen] = useState(false);
+  const loc = useLocation();
+  useEffect(() => setOpen(false), [loc.pathname, loc.search]);
+  const roots = categories.filter((c) => !c.parentId);
+  return (
+    <div className="catmenu only-desktop" onMouseLeave={() => setOpen(false)}>
+      <button className="catmenu-btn" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        Shop by category <Icon name="chevronDown" size={18} />
+      </button>
+      {open && (
+        <div className="catmenu-panel">
+          {roots.map((r) => (
+            <div key={r.id}>
+              <Link to={`/search?category=${r.slug}`} className="catmenu-root">{r.name}</Link>
+              {categories.filter((c) => c.parentId === r.id).slice(0, 6).map((c) => <Link key={c.id} to={`/search?category=${c.slug}`}>{c.name}</Link>)}
+            </div>
+          ))}
+          <Link to="/categories" className="catmenu-all">See all categories <Icon name="chevronRight" size={16} /></Link>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -150,7 +179,7 @@ function Drawer({ open, onClose, categories }: { open: boolean; onClose: () => v
 }
 
 function Header() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const { count } = useCart();
   const { resolved } = usePromos();
   const categories = useCategories();
@@ -159,41 +188,56 @@ function Header() {
   const occ = resolved.occurrence;
   const theme = resolved.theme;
   const pin = user?.addresses.find((a) => a.isDefault) ?? user?.addresses[0];
+  const light = !isLight(theme.headerBg);
+  const roots = categories.filter((c) => !c.parentId);
+  const [params] = useSearchParams();
+  const cat = categories.find((c) => c.slug === params.get('category'));
+  const activeCat = cat?.parentId ? categories.find((c) => c.id === cat.parentId)?.slug : cat?.slug;
   return (
-    <header className="site-header" style={theme.headerImage ? { backgroundImage: `url(${theme.headerImage})` } : undefined}>
+    <header className={`site-header${light ? ' on-dark' : ''}`} style={theme.headerImage ? { backgroundImage: cssUrl(theme.headerImage) } : undefined}>
+      <div className="topbar only-desktop">
+        <div className="container topbar-inner">
+          <span>
+            {user ? <>Hi <strong>{user.name?.split(' ')[0] ?? 'there'}</strong>! <button className="link" onClick={signOut}>Sign out</button></> : <>Hi! <Link to="/login">Sign in</Link> or <Link to="/login">register</Link></>}
+          </span>
+          {occ && <Link to="/deals" className="topbar-festival">{occ.festival.name} Sale</Link>}
+          <Link to="/deals">Daily Deals</Link>
+          <Link to="/deals?tab=offers">Coupons &amp; Bank Offers</Link>
+          <Link to="/help">Help &amp; Contact</Link>
+          <span className="grow" />
+          <Link to={user ? '/account/addresses' : '/login'} className="deliver"><Icon name="location" size={15} />{pin ? `Deliver to ${pin.city} ${pin.pincode}` : 'Deliver to'}</Link>
+          <Link to="/watchlist">Watchlist</Link>
+          <Link to={user ? '/orders' : '/login?next=/orders'}>My {site.name}</Link>
+          {isAdmin && <Link to="/admin">Admin</Link>}
+          {isAdmin && <Bell reminders={reminders} />}
+          <Link to="/cart" className="header-cart" aria-label={`Cart, ${count} items`}>
+            <Icon name="cart" size={22} />
+            {count > 0 && <span className="dot-count">{count}</span>}
+          </Link>
+        </div>
+      </div>
       <div className="header-main container">
         <button className="icon-btn header-icon only-mobile" onClick={() => setMenu(true)} aria-label="Open menu"><Icon name="menu" /></button>
-        <Logo light={theme.headerBg !== '#FFFFFF'} />
+        <Logo light={light} />
         {occ && <span className="header-motif" title={occ.festival.greeting}><Motif motif={theme.motif} size={30} /></span>}
-        <Link to={user ? '/account/addresses' : '/login'} className="deliver only-desktop">
-          <Icon name="location" size={18} />
-          <span><small>Deliver to</small><strong>{pin ? `${pin.city} ${pin.pincode}` : 'Select address'}</strong></span>
-        </Link>
+        <CategoryMenu categories={categories} />
         <div className="only-desktop grow"><SearchBar categories={categories} /></div>
-        <div className="header-actions">
+        <div className="header-actions only-mobile">
           {isAdmin && <Bell reminders={reminders} />}
-          <Link to={user ? '/account' : '/login'} className="header-link only-desktop">
-            <small>{user ? `Hello, ${user.name?.split(' ')[0] ?? 'there'}` : 'Hello, sign in'}</small>
-            <strong>Account</strong>
-          </Link>
-          <Link to="/orders" className="header-link only-desktop"><small>Returns</small><strong>& Orders</strong></Link>
-          {isAdmin && <Link to="/admin" className="header-link only-desktop"><small>Manage</small><strong>Admin</strong></Link>}
           <Link to="/cart" className="header-cart" aria-label={`Cart, ${count} items`}>
-            <Icon name="cart" size={28} />
-            <span className="cart-count">{count}</span>
-            <strong className="only-desktop">Cart</strong>
+            <Icon name="cart" size={26} />
+            {count > 0 && <span className="dot-count">{count}</span>}
           </Link>
         </div>
       </div>
       <div className="container only-mobile mobile-search"><SearchBar categories={categories} /></div>
       <nav className="header-nav" aria-label="Shop">
         <div className="container header-nav-inner">
-          <button className="nav-all only-desktop" onClick={() => setMenu(true)}><Icon name="menu" size={18} /> All</button>
+          <NavLink to="/" end>Home</NavLink>
           {occ && <NavLink to="/deals" className="nav-festival">{occ.festival.name} Sale</NavLink>}
-          <NavLink to="/deals">Today’s Deals</NavLink>
-          <NavLink to="/deals?tab=lightning">Lightning Deals</NavLink>
-          <NavLink to="/deals?tab=offers">Coupons & Bank Offers</NavLink>
-          {categories.filter((c) => !c.parentId).slice(0, 8).map((c) => <NavLink key={c.id} to={`/search?category=${c.slug}`}>{c.name}</NavLink>)}
+          <Link to="/deals?tab=lightning">Lightning Deals</Link>
+          <NavLink to="/watchlist">Saved</NavLink>
+          {roots.slice(0, 9).map((c) => <Link key={c.id} to={`/search?category=${c.slug}`} className={activeCat === c.slug ? 'active' : undefined}>{c.name}</Link>)}
         </div>
       </nav>
       <DecorStrip decor={theme.decor} />
@@ -233,7 +277,7 @@ function Footer() {
   const theme = resolved.theme;
   const occ = resolved.occurrence;
   return (
-    <footer className="site-footer" style={theme.footerImage ? { backgroundImage: `url(${theme.footerImage})` } : undefined}>
+    <footer className={`site-footer${isLight(theme.footerBg) ? '' : ' on-dark'}`} style={theme.footerImage ? { backgroundImage: cssUrl(theme.footerImage) } : undefined}>
       <DecorStrip decor={theme.decor} />
       <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top</button>
       <div className="container footer-grid">
@@ -246,7 +290,7 @@ function Footer() {
       </div>
       <div className="container footer-mid">
         <div>
-          <Logo light />
+          <Logo light={!isLight(theme.footerBg)} />
           <p className="footer-tag">{occ ? `${occ.festival.greeting} from all of us at ${site.name}!` : site.tagline}</p>
         </div>
         <div className="pay-methods" aria-label="Payment methods">{site.paymentMethods.map((m) => <span key={m}>{m}</span>)}</div>

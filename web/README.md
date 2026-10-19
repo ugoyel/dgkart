@@ -42,6 +42,27 @@ VITE_API_BASE_URL=http://localhost:3000
 
 In API mode, also add the website's address to `CORS_ORIGINS` on the API. If the API runs `AUTH_MODE=firebase`, fill in the `VITE_FIREBASE_*` values from your Firebase web app.
 
+## Changing the look (Admin → Appearance)
+
+Admin → Appearance changes the site's look without touching code. The whole site previews your changes while you edit, and **Publish** makes them live for shoppers.
+
+- **Theme:** there are three modes:
+  - *Automatic* follows the festival calendar.
+  - *Keep one festival's theme on* holds a festival's look until a date you pick, for example for an early sale.
+  - *Always everyday* turns festival themes off.
+- **Colours & background:**
+  - presets, or your own colours for buttons, highlights, header and footer (solid or gradient)
+  - optional header, footer and page-background pictures
+  - corner roundness and shadow depth
+- **Home slider:** add, edit, reorder, hide or duplicate banners. Each banner has a heading, text, button, link, background colour or photo, and a picture on the right. A banner with no picture shows best-selling products from the category it links to. The current festival's banner and live sales can be added automatically.
+- **Category banners:** every category page opens with a banner slider. Pick a category to give it its own banners. Categories without any get automatic ones from their best sellers, new arrivals, sales and subcategories. Subcategories use their parent's banners.
+- **Transitions:**
+  - effect: slide, cross-fade or fade-and-zoom
+  - speed, how long each banner stays, and motion style
+  - autoplay on or off
+
+Shoppers can always swipe, drag, use the arrows or keyboard, or pause. Uploaded pictures are shrunk in the browser before upload. In API mode they are stored with product images (`/uploads/site/…` or S3). In demo mode they stay in that browser.
+
 ## Festival themes
 
 The site checks the festival calendar every minute.
@@ -51,6 +72,8 @@ The site checks the festival calendar every minute.
 - **After the festival:** the theme reverts to DGkart blue on its own.
 
 When festivals overlap, the one with the higher `priority` wins. Diwali has the highest.
+
+**Navratri and Dussehra.** Dussehra outranks Navratri and switches on 3 days early, so it takes over during the last days of Navratri.
 
 **What it covers.** The calendar includes Diwali, Dussehra, Navratri, Holi, Eid al-Fitr, Eid al-Adha, Ganesh Chaturthi, Janmashtami, Raksha Bandhan, Onam, Pongal and Makar Sankranti, Republic Day, Independence Day, Christmas and New Year. Dates are filled in for 2026 and 2027.
 
@@ -110,7 +133,7 @@ Lightning deal units and coupon uses are claimed when the order is placed. They 
 | `src/config/site.ts` | Brand, footer links, banks, hero slides: edit to change site content |
 | `src/data/source.ts` | The `DataSource` interface. `api/` talks to the backend and `demo/` runs in the browser |
 | `src/state/AppState.tsx` | Sign-in, cart, offers and the live festival theme |
-| `src/components/` | Header, footer, festival art, product cards, price summary |
+| `src/components/` | Header, footer, banner slider (`Carousel`, `Banners`), festival art, product cards, price summary |
 | `src/pages/` | Storefront pages |
-| `src/pages/admin/` | Admin panel (loaded only for admins) |
+| `src/pages/admin/` | Admin panel (loaded only for admins), including Appearance |
 | `src/styles/app.css` | All styles. Colours are CSS variables that festival themes override |

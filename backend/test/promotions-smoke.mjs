@@ -91,6 +91,26 @@ if (reminders[0]) {
   check('dismissed reminder stays dismissed', !left.some((r) => r.id === reminders[0].id));
 }
 
+// Appearance: theme mode, banners and uploads.
+const look = (await call('GET', '/admin/appearance', { token: admin })).json;
+check('appearance has defaults', look.themeMode === 'auto' && look.heroSlides.length > 0 && look.slider.effect === 'slide');
+const forced = await call('PUT', '/admin/appearance', { token: admin, body: { ...look, themeMode: 'festival', forcedFestivalId: 'diwali', slider: { ...look.slider, effect: 'fade' } } });
+check('admin can force a festival theme', forced.status === 200 && forced.json.slider.effect === 'fade', `${forced.status}`);
+const pub = (await call('GET', '/promotions')).json;
+check('shoppers get the forced theme and the look settings', pub.theme.occurrence?.festival.id === 'diwali' && pub.appearance.slider.effect === 'fade');
+const badLook = await call('PUT', '/admin/appearance', { token: admin, body: { ...look, heroSlides: [{ ...look.heroSlides[0], link: 'javascript:alert(1)' }] } });
+check('unsafe banner links are rejected', badLook.status === 400, `${badLook.status}`);
+check('shoppers cannot change the look', (await call('PUT', '/admin/appearance', { token: shopper, body: look })).status === 403);
+const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+const form = new FormData();
+form.append('file', new Blob([png], { type: 'image/png' }), 'banner.png');
+const up = await fetch(API + '/admin/media', { method: 'POST', headers: { Authorization: `Bearer ${admin}` }, body: form }).then(async (r) => ({ status: r.status, json: await r.json() }));
+check('admin can upload a banner image', up.status === 201 && /\/uploads\/site\/.+\.png$/.test(up.json.url), JSON.stringify(up.json));
+const notImage = new FormData();
+notImage.append('file', new Blob(['<svg/>'], { type: 'image/svg+xml' }), 'x.svg');
+check('non-image uploads are refused', (await fetch(API + '/admin/media', { method: 'POST', headers: { Authorization: `Bearer ${admin}` }, body: notImage })).status === 400);
+await call('POST', '/admin/appearance/reset', { token: admin });
+
 // Clean up so reruns start fresh.
 for (const o of [ld, cp, bank, ...drafts.json]) await call('DELETE', `/admin/offers/${o.id}`, { token: admin });
 await call('POST', '/admin/festivals/reset', { token: admin });

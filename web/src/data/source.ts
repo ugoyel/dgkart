@@ -1,3 +1,4 @@
+import type { Appearance } from '@engine';
 import type {
   Address, AdminReminder, AdminStats, CartItem, Category, Festival, HomeData, ImageUploadResult, ImportJob, Offer,
   Order, OrderStatus, Page, PlaceOrderInput, Product, PromoState, Quote, QuoteRequest, SearchQuery, Session, User,
@@ -87,4 +88,9 @@ export interface AdminApi {
   templateUrl(kind: 'products' | 'image-mapping'): string;
   seed(count: number): Promise<ImportJob | { added: number }>;
   wipeDummy(): Promise<{ deleted: number }>;
+  appearance(): Promise<Appearance>;
+  saveAppearance(a: Appearance): Promise<Appearance>;
+  resetAppearance(): Promise<Appearance>;
+  /** Stores a banner / background image (already resized in the browser) and returns its URL. */
+  uploadMedia(file: Blob, name: string): Promise<string>;
 }

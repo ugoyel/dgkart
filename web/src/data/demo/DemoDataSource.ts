@@ -1,6 +1,6 @@
 import {
-  DEFAULT_FESTIVALS, FestivalOverride, Offer, Quote, draftFestivalOffers, dueReminders, mergeCalendar, occurrences, quote,
-  resolveTheme, validateFestival, validateOffer,
+  Appearance, DEFAULT_FESTIVALS, FestivalOverride, Offer, Quote, draftFestivalOffers, dueReminders, mergeAppearance, mergeCalendar,
+  occurrences, quote, resolveSiteTheme, validateAppearance, validateFestival, validateOffer,
 } from '@engine';
 import { assetUrl, config } from '../../config/env';
 import { site } from '../../config/site';
@@ -35,6 +35,8 @@ interface DemoState {
 
 const STATE_KEY = 'dg.demo.state';
 const SESSION_KEY = 'dg.demo.session';
+/** Kept apart from the rest of the demo state because it can hold images. */
+const APPEARANCE_KEY = 'dg.demo.appearance';
 const DAY = 86_400_000;
 
 class DemoError extends Error {}
@@ -378,11 +380,13 @@ export class DemoDataSource implements DataSource {
     await this.load();
     const now = new Date();
     const festivals = this.festivals();
+    const appearance = this.appearance();
     return {
       serverTime: now.toISOString(),
       festivals,
       offers: this.state.offers.filter((o) => o.isActive && new Date(o.endsAt) > now),
-      theme: resolveTheme(festivals, at ?? now),
+      theme: resolveSiteTheme(festivals, appearance, at ?? now),
+      appearance,
     };
   }
   async quote(req: QuoteRequest) {
@@ -393,6 +397,10 @@ export class DemoDataSource implements DataSource {
       /* guest */
     }
     return (await this.priced(userId, req)).q;
+  }
+
+  private appearance(): Appearance {
+    return mergeAppearance(store.get<Partial<Appearance>>(APPEARANCE_KEY));
   }
 
   // ------------------------------------------------------------ admin
@@ -479,6 +487,34 @@ export class DemoDataSource implements DataSource {
       this.state.offers.push(...drafts);
       this.save();
       return drafts;
+    },
+    appearance: async () => {
+      this.requireAdmin();
+      return this.appearance();
+    },
+    saveAppearance: async (input) => {
+      this.requireAdmin();
+      const a = mergeAppearance(input);
+      const errors = validateAppearance(a);
+      if (errors.length) throw new DemoError(errors.slice(0, 5).join('. '));
+      if (JSON.stringify(a).length > 4_000_000) throw new DemoError('Too many large images for demo mode (it keeps them in this browser). Remove some, or connect the API.');
+      store.set(APPEARANCE_KEY, a);
+      return a;
+    },
+    resetAppearance: async () => {
+      this.requireAdmin();
+      store.remove(APPEARANCE_KEY);
+      return this.appearance();
+    },
+    // Demo mode keeps images in the browser as data URLs (already resized by the page).
+    uploadMedia: async (file) => {
+      this.requireAdmin();
+      return new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = () => reject(new DemoError('Could not read the image'));
+        r.readAsDataURL(file);
+      });
     },
     notifications: async () => {
       this.requireAdmin();

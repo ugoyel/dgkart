@@ -10,6 +10,7 @@ const NAV: { to: string; label: string; icon: IconName }[] = [
   { to: '/admin', label: 'Dashboard', icon: 'home' },
   { to: '/admin/notifications', label: 'Festival reminders', icon: 'bell' },
   { to: '/admin/offers', label: 'Offers & deals', icon: 'tag' },
+  { to: '/admin/appearance', label: 'Appearance', icon: 'image' },
   { to: '/admin/festivals', label: 'Festivals & themes', icon: 'palette' },
   { to: '/admin/products', label: 'Products', icon: 'box' },
   { to: '/admin/import', label: 'Catalogue upload', icon: 'upload' },

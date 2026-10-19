@@ -51,6 +51,7 @@ The Flutter app still builds for web too (`flutter build web`), but `web/` is th
 
 The API's `PromotionsModule` and the website both import it, so the prices shown in the browser are the same prices the API charges.
 
+- **Appearance:** the admin's look settings (theme mode, everyday colours, banners, slider) are `engine/appearance.ts`. They are stored in `app_settings` under the key `appearance`, served with `GET /promotions`, and edited at `/admin/appearance`. Pictures are uploaded with `POST /admin/media` through the same `StorageService` as product images.
 - **Storage:** offers live in the `promotions` table. Admin edits to the calendar and dismissed reminders are stored in `app_settings`.
 - **Orders:** an order stores the offers applied to it in `discounts`. Lightning deal units and coupon uses are claimed when the order is placed and released when it is cancelled or the payment fails.
 - **Endpoints:**

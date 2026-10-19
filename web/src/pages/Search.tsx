@@ -1,8 +1,9 @@
 import { FormEvent, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { CategorySlider } from '../components/Banners';
 import { Icon } from '../components/Icon';
 import { useCategories } from '../components/Layout';
-import { Empty, ProductCard, SkeletonGrid, useTitle } from '../components/ui';
+import { Empty, Img, ProductCard, SkeletonGrid, useTitle } from '../components/ui';
 import { ds } from '../data';
 import type { Condition, SearchQuery, SortKey } from '../data';
 import { compact, conditionLabel } from '../lib/format';
@@ -98,6 +99,22 @@ export function Search() {
         <Link to="/">Home</Link> › {parent && <><Link to={`/search?category=${parent.slug}`}>{parent.name}</Link> › </>}
         <span>{cat?.name ?? (q.q ? `“${q.q}”` : 'All products')}</span>
       </div>
+      {cat && !q.q && (
+        <>
+          <h1 className="category-title">{cat.name}</h1>
+          <CategorySlider key={cat.slug} category={cat} categories={categories} products={data?.items ?? []} />
+          {children.length > 0 && (
+            <nav className="subcat-circles" aria-label={`Shop ${cat.name}`}>
+              {children.map((c) => (
+                <Link key={c.id} to={`/search?category=${c.slug}`} className="cat-circle">
+                  <Img src={c.imageUrl} alt="" />
+                  <span>{c.name}</span>
+                </Link>
+              ))}
+            </nav>
+          )}
+        </>
+      )}
       <div className="search-layout">
         <aside className="only-desktop">{filters}</aside>
         <section>

@@ -104,8 +104,9 @@ export function AdminDashboard() {
             <span className="small">Website theme right now</span>
             <h2>{occ ? `${occ.festival.name} (${resolved.phase === 'lead-up' ? `starts in ${resolved.daysToStart} days` : resolved.phase === 'live' ? 'live' : 'ending'})` : 'Everyday DGkart'}</h2>
             <p className="small">The header, footer, banner and colours switch automatically from each festival’s calendar and revert afterwards.</p>
-            <div className="row">
+            <div className="row wrap">
               <Link to="/admin/festivals" className="btn btn-light btn-sm">Edit festivals</Link>
+              <Link to="/admin/appearance" className="btn btn-light btn-sm">Change the look</Link>
               {occ && <button className="btn btn-light btn-sm" onClick={() => setPreviewDate(null)}>View site</button>}
             </div>
           </div>

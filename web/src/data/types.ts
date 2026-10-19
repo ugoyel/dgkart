@@ -3,7 +3,7 @@
  * swapping demo data for the API, or the API for another backend, only means
  * writing another DataSource.
  */
-import type { AdminReminder, AppliedOffer, CardType, Festival, Offer, Quote, ResolvedTheme } from '@engine';
+import type { AdminReminder, Appearance, AppliedOffer, CardType, Festival, Offer, Quote, ResolvedTheme } from '@engine';
 
 export type Condition = 'NEW' | 'OPEN_BOX' | 'REFURBISHED' | 'USED';
 export type Role = 'USER' | 'ADMIN';
@@ -161,6 +161,8 @@ export interface PromoState {
   festivals: Festival[];
   offers: Offer[];
   theme?: ResolvedTheme;
+  /** Admin-chosen look (older APIs leave it out; the defaults apply). */
+  appearance?: Appearance;
 }
 
 export interface AdminStats {

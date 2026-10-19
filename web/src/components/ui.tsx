@@ -1,11 +1,11 @@
 import { OFFER_LABELS, Offer, claimedPercent } from '@engine';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { site } from '../config/site';
 import type { Product } from '../data';
 import { compact, countdown, money, percentOff } from '../lib/format';
 import { useNow } from '../lib/useNow';
-import { usePromos } from '../state/AppState';
+import { usePromos, useWatch } from '../state/AppState';
 import { Icon } from './Icon';
 
 export function Logo({ light = false }: { light?: boolean }) {
@@ -74,10 +74,32 @@ export function PriceBlock({ product, large = false }: { product: Product; large
   const off = percentOff(price, was);
   return (
     <div className={`price ${large ? 'price-lg' : ''}`}>
-      {off > 0 && <span className="price-off">-{off}%</span>}
       <span className="price-now">{money(price)}</span>
       {was && was > price && <span className="price-was">{large ? 'M.R.P.: ' : ''}<s>{money(was)}</s></span>}
+      {off > 0 && <span className="price-off">{off}% off</span>}
     </div>
+  );
+}
+
+/** Heart button that saves a product to the watchlist (eBay style). */
+export function WatchHeart({ productId }: { productId: string }) {
+  const watch = useWatch();
+  const nav = useNavigate();
+  const on = watch.has(productId);
+  return (
+    <button
+      type="button"
+      className={`heart${on ? ' on' : ''}`}
+      aria-label={on ? 'Remove from watchlist' : 'Save to watchlist'}
+      aria-pressed={on}
+      onClick={async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!(await watch.toggle(productId))) nav(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+      }}
+    >
+      <Icon name={on ? 'heartFill' : 'heart'} size={20} />
+    </button>
   );
 }
 
@@ -85,10 +107,11 @@ export function ProductCard({ product, showDeal = true }: { product: Product; sh
   const { dealFor } = usePromos();
   const deal = showDeal ? dealFor(product) : null;
   return (
-    <Link to={`/product/${product.id}`} className="card product-card">
+    <Link to={`/product/${product.id}`} className="product-card">
       <div className="product-card-img">
         <Img src={product.thumbnailUrl} alt={product.title} />
         {deal && <DealBadge offer={deal.offer} />}
+        <WatchHeart productId={product.id} />
       </div>
       <div className="product-card-body">
         <h3 className="product-card-title">{product.title}</h3>

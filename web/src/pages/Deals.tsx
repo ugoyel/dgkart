@@ -58,7 +58,7 @@ export function Deals() {
               <h3>Upcoming</h3>
               <div className="grid">
                 {soon.map(({ offer, product }) => (
-                  <Link key={offer.id + product.id} to={`/product/${product.id}`} className="card product-card upcoming">
+                  <Link key={offer.id + product.id} to={`/product/${product.id}`} className="product-card upcoming">
                     <div className="product-card-img"><Img src={product.thumbnailUrl} alt={product.title} /><span className="badge badge-soon">Upcoming</span></div>
                     <div className="product-card-body">
                       <h3 className="product-card-title">{product.title}</h3>

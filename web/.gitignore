@@ -3,3 +3,4 @@ dist/
 # Copied from mobile/assets/demo by scripts/sync-demo-data.mjs
 public/demo/
 .env.local
+*.tsbuildinfo

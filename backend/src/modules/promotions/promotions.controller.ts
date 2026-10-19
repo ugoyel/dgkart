@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiProperty, ApiPropertyOptional, ApiTags, PartialType } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiProperty, ApiPropertyOptional, ApiTags, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, IsUUID,
@@ -150,5 +151,27 @@ export class AdminPromotionsController {
 
   @Post('notifications/:id/dismiss') @HttpCode(200) dismiss(@Param('id') id: string) {
     return this.promotions.dismissReminder(id);
+  }
+
+  /** Website look: theme mode, everyday colours, banners, slider transitions. */
+  @Get('appearance') appearance() {
+    return this.promotions.appearance();
+  }
+
+  @Put('appearance') @ApiBody({ schema: { type: 'object' } })
+  saveAppearance(@Body() body: Record<string, unknown>) {
+    return this.promotions.saveAppearance(body);
+  }
+
+  @Post('appearance/reset') @HttpCode(200) resetAppearance() {
+    return this.promotions.resetAppearance();
+  }
+
+  /** Upload one banner / background / header image (max 5 MB). */
+  @Post('media') @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  uploadMedia(@UploadedFile() file?: { buffer: Buffer; mimetype: string; size: number }) {
+    return this.promotions.uploadMedia(file);
   }
 }

@@ -1,6 +1,6 @@
 import { Offer, OfferKind, isLive, isUpcoming, upcomingFestivals } from '@engine';
 import { Link } from 'react-router-dom';
-import { Hero } from '../components/Hero';
+import { HomeSlider } from '../components/Banners';
 import { Icon } from '../components/Icon';
 import { useCategories } from '../components/Layout';
 import { Countdown, Empty, Img, ProductCard, Rail, SkeletonGrid, useTitle } from '../components/ui';
@@ -57,9 +57,10 @@ export function Home() {
 
   return (
     <div className="home">
-      <div className="container"><Hero /></div>
+      <div className="container"><HomeSlider /></div>
 
       <div className="container">
+        <h2 className="section-title">Explore popular categories</h2>
         <section className="cat-circles" aria-label="Shop by category">
           {roots.map((c) => (
             <Link key={c.id} to={`/search?category=${c.slug}`} className="cat-circle">
@@ -74,7 +75,7 @@ export function Home() {
             {lightning.map(({ offer, product }) => (
               <div key={offer.id + product.id} className="rail-item">
                 {isUpcoming(offer, now) ? (
-                  <div className="card product-card upcoming">
+                  <div className="product-card upcoming">
                     <div className="product-card-img"><Img src={product.thumbnailUrl} alt={product.title} /><span className="badge badge-soon">Upcoming</span></div>
                     <div className="product-card-body">
                       <h3 className="product-card-title">{product.title}</h3>
@@ -104,7 +105,7 @@ export function Home() {
         {!home && !error && <SkeletonGrid />}
         {home && (
           <>
-            <Rail title="Today’s top discounts" to="/search?sort=best">
+            <Rail title="Today’s Deals – all with great prices" to="/search?sort=best">
               {home.dailyDeals.map((p) => <div key={p.id} className="rail-item"><ProductCard product={p} /></div>)}
             </Rail>
             <Rail title="Trending now" to="/search">

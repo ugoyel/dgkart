@@ -5,3 +5,4 @@ export * from './offers';
 export * from './reminders';
 export * from './drafts';
 export * from './shipping';
+export * from './appearance';

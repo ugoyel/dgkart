@@ -3,14 +3,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, MoreThan, Repository } from 'typeorm';
 import { Category } from '../catalog/category.entity';
 import { Product } from '../catalog/product.entity';
+import { randomUUID } from 'crypto';
+import { StorageService } from '../storage/storage.service';
 import {
-  AppliedOffer, DEFAULT_FESTIVALS, Festival, FestivalOverride, Offer, PaymentChoice, Quote,
-  draftFestivalOffers, dueReminders, mergeCalendar, occurrences, quote, resolveTheme, validateFestival, validateOffer,
+  AppliedOffer, Appearance, DEFAULT_FESTIVALS, Festival, FestivalOverride, Offer, PaymentChoice, Quote,
+  draftFestivalOffers, dueReminders, mergeAppearance, mergeCalendar, occurrences, quote, resolveSiteTheme, validateAppearance,
+  validateFestival, validateOffer,
 } from './engine';
 import { AppSetting, Promotion } from './promotion.entity';
 
 const FESTIVAL_OVERRIDES = 'festival-overrides';
 const DISMISSED_REMINDERS = 'dismissed-reminders';
+const APPEARANCE = 'appearance';
+const IMAGE_TYPES: Record<string, string> = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' };
 
 export interface QuoteRequest {
   items: { productId: string; quantity: number }[];
@@ -33,7 +38,36 @@ export class PromotionsService {
     @InjectRepository(Promotion) private readonly promos: Repository<Promotion>,
     @InjectRepository(AppSetting) private readonly settings: Repository<AppSetting>,
     private readonly db: DataSource,
+    private readonly storage: StorageService,
   ) {}
+
+  // ------------------------------------------------------------ appearance
+
+  async appearance(): Promise<Appearance> {
+    return mergeAppearance(await this.setting<Partial<Appearance> | null>(APPEARANCE, null));
+  }
+
+  async saveAppearance(input: Partial<Appearance>): Promise<Appearance> {
+    const a = mergeAppearance(input);
+    const errors = validateAppearance(a);
+    if (errors.length) throw new BadRequestException(errors.slice(0, 5).join('. '));
+    if (JSON.stringify(a).length > 512_000) throw new BadRequestException('Settings are too large: upload images instead of pasting them');
+    await this.saveSetting(APPEARANCE, a);
+    return a;
+  }
+
+  async resetAppearance(): Promise<Appearance> {
+    await this.settings.delete({ key: APPEARANCE });
+    return mergeAppearance(null);
+  }
+
+  /** Stores a banner, background or header/footer image and returns its public URL. */
+  async uploadMedia(file?: { buffer: Buffer; mimetype: string; size: number }): Promise<{ url: string }> {
+    if (!file) throw new BadRequestException('Attach an image as "file"');
+    const ext = IMAGE_TYPES[file.mimetype];
+    if (!ext) throw new BadRequestException('Upload a JPG, PNG, WebP or GIF image');
+    return { url: await this.storage.put(`site/${randomUUID()}${ext}`, file.buffer, file.mimetype) };
+  }
 
   // ------------------------------------------------------------ calendar
 
@@ -88,8 +122,10 @@ export class PromotionsService {
     const offers = await this.liveOffers(now);
     // Hide codes of coupons that have not started yet.
     const visible = offers.map((o) => (new Date(o.startsAt) > now && o.kind === 'COUPON' ? { ...o, code: null } : o));
-    const theme = resolveTheme(festivals, at ?? now);
+    const appearance = await this.appearance();
+    const theme = resolveSiteTheme(festivals, appearance, at ?? now);
     return {
+      appearance,
       serverTime: now.toISOString(),
       // Offer templates are the admin's plans; shoppers only need dates and themes.
       festivals: festivals.map(({ offerTemplate: _t, ...f }) => f),

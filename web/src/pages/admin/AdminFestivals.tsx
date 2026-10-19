@@ -7,8 +7,9 @@ import { Modal, Spinner } from '../../components/ui';
 import { ds } from '../../data';
 import { date } from '../../lib/format';
 import { useAsync } from '../../lib/useAsync';
-import { errorText, usePromos, useToast } from '../../state/AppState';
+import { cssUrl, errorText, usePromos, useToast } from '../../state/AppState';
 import { AdminLayout, remindersChanged } from './AdminLayout';
+import { ImageField } from './fields';
 
 const MOTIFS: FestivalMotif[] = ['diya', 'rangoli', 'colors', 'crescent', 'star', 'kite', 'pookalam', 'tricolor', 'rakhi', 'dandiya', 'lotus', 'bow', 'sparkle'];
 const DECORS: FestivalDecor[] = ['toran', 'lights', 'tricolor', 'bunting', 'none'];
@@ -30,16 +31,16 @@ function ThemePreview({ f }: { f: Festival }) {
   const t = f.theme;
   return (
     <div className="theme-preview">
-      <div className="tp-header" style={{ background: t.headerImage ? `center/cover url(${t.headerImage})` : t.headerBg, color: t.headerText }}>
+      <div className="tp-header" style={{ background: t.headerImage ? `center/cover ${cssUrl(t.headerImage)}` : t.headerBg, color: t.headerText }}>
         <strong>DGkart</strong><span className="tp-search" /><span style={{ background: t.accent }} className="tp-dot" />
       </div>
       <DecorStrip decor={t.decor} />
-      <div className="tp-banner" style={{ background: t.bannerImage ? `center/cover url(${t.bannerImage})` : t.bannerBg }}>
+      <div className="tp-banner" style={{ background: t.bannerImage ? `center/cover ${cssUrl(t.bannerImage)}` : t.bannerBg }}>
         <Motif motif={t.motif} size={56} />
         <div><small>{f.greeting || 'Greeting'}</small><strong>{f.name || 'Festival'} Sale</strong></div>
         <span className="tp-btn" style={{ background: t.primary }}>Shop now</span>
       </div>
-      <div className="tp-footer" style={{ background: t.footerImage ? `center/cover url(${t.footerImage})` : t.footerBg, color: t.footerText }}>Footer · {f.greeting}</div>
+      <div className="tp-footer" style={{ background: t.footerImage ? `center/cover ${cssUrl(t.footerImage)}` : t.footerBg, color: t.footerText }}>Footer · {f.greeting}</div>
     </div>
   );
 }
@@ -109,9 +110,9 @@ function FestivalEditor({ initial, isNew, onClose, onSaved }: { initial: Festiva
           ))}
           <label>Artwork<select value={f.theme.motif} onChange={(e) => setTheme({ motif: e.target.value as FestivalMotif })}>{MOTIFS.map((m) => <option key={m}>{m}</option>)}</select></label>
           <label>Header & footer decoration<select value={f.theme.decor} onChange={(e) => setTheme({ decor: e.target.value as FestivalDecor })}>{DECORS.map((m) => <option key={m}>{m}</option>)}</select></label>
-          <label className="span2">Header image URL (optional, replaces the colour)<input value={f.theme.headerImage ?? ''} onChange={(e) => setTheme({ headerImage: e.target.value || undefined })} /></label>
-          <label className="span2">Banner image URL (optional)<input value={f.theme.bannerImage ?? ''} onChange={(e) => setTheme({ bannerImage: e.target.value || undefined })} /></label>
-          <label className="span2">Footer image URL (optional)<input value={f.theme.footerImage ?? ''} onChange={(e) => setTheme({ footerImage: e.target.value || undefined })} /></label>
+          <ImageField label="Header picture (optional, replaces the colour)" value={f.theme.headerImage} onChange={(v) => setTheme({ headerImage: v ?? undefined })} />
+          <ImageField label="Banner picture (optional)" value={f.theme.bannerImage} onChange={(v) => setTheme({ bannerImage: v ?? undefined })} />
+          <ImageField label="Footer picture (optional)" value={f.theme.footerImage} onChange={(v) => setTheme({ footerImage: v ?? undefined })} />
 
           <h3 className="span2">Draft offer template</h3>
           <p className="muted small span2">Used by “Create draft offers” on this festival’s reminder.</p>

@@ -1,4 +1,4 @@
-import { FestivalTheme, Offer, ResolvedTheme, bestDeal, resolveTheme } from '@engine';
+import { Appearance, FestivalTheme, Offer, ResolvedTheme, SLIDE_EASINGS, bestDeal, mergeAppearance, resolveSiteTheme } from '@engine';
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ds } from '../data';
 import type { CartItem, Festival, Product, User } from '../data';
@@ -83,6 +83,10 @@ interface PromoCtx {
   offers: Offer[];
   festivals: Festival[];
   resolved: ResolvedTheme;
+  /** The admin's chosen look (banners, colours, transitions); a draft while the admin is editing. */
+  appearance: Appearance;
+  /** Admin live preview of unsaved look settings (null = the published ones). */
+  setAppearanceDraft: (a: Appearance | null) => void;
   /** Admin preview: show the site as it will look on this date. */
   previewDate: Date | null;
   setPreviewDate: (d: Date | null) => void;
@@ -97,6 +101,7 @@ export const usePromos = () => useContext(PromoContext);
 
 const PREVIEW_KEY = 'dg.themePreview';
 const CLIP_KEY = 'dg.clipped';
+const LOOK_CACHE = 'dg.look';
 
 function readPreview(): Date | null {
   const fromUrl = new URLSearchParams(window.location.search).get('themeDate');
@@ -104,6 +109,36 @@ function readPreview(): Date | null {
   if (!raw) return null;
   const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(raw) ? `${raw}T12:00:00+05:30` : raw);
   return isNaN(d.getTime()) ? null : d;
+}
+
+const SHADOWS = {
+  flat: 'none',
+  soft: '0 1px 2px rgba(15, 30, 61, 0.06), 0 2px 8px rgba(15, 30, 61, 0.06)',
+  deep: '0 4px 10px rgba(15, 30, 61, 0.12), 0 12px 32px rgba(15, 30, 61, 0.14)',
+};
+
+/** CSS url() for an image setting, quoted so odd characters can't break out. */
+export const cssUrl = (u: string) => `url("${encodeURI(u).replace(/"/g, '%22')}")`;
+
+/** Page-wide look settings that are not festival colours. */
+export function applyLook(a: Appearance) {
+  const r = document.documentElement.style;
+  r.setProperty('--page-bg', a.pageBg);
+  r.setProperty('--page-bg-image', a.pageBgImage ? cssUrl(a.pageBgImage) : 'none');
+  r.setProperty('--radius', `${a.radius}px`);
+  r.setProperty('--radius-sm', `${Math.round(a.radius * 0.6)}px`);
+  r.setProperty('--shadow', SHADOWS[a.shade]);
+  r.setProperty('--slide-speed', `${a.slider.speedMs}ms`);
+  r.setProperty('--slide-ease', SLIDE_EASINGS[a.slider.easing]);
+}
+
+/** Is a CSS colour light (so dark text/logo should sit on it)? Gradients use their first colour. */
+export function isLight(css: string) {
+  const m = css.match(/#([0-9a-f]{6}|[0-9a-f]{3})\b/i);
+  if (!m) return !/gradient/.test(css);
+  const h = m[1].length === 3 ? m[1].split('').map((c) => c + c).join('') : m[1];
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  return 0.299 * r + 0.587 * g + 0.114 * b > 160;
 }
 
 export function applyTheme(t: FestivalTheme) {
@@ -125,6 +160,9 @@ function PromoProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [previewDate, setPreview] = useState<Date | null>(readPreview);
   const [clipped, setClipped] = useState<string[]>(() => store.get<string[]>(CLIP_KEY) ?? []);
+  const [published, setPublished] = useState<Appearance>(() => mergeAppearance(store.get<Appearance>(LOOK_CACHE)));
+  const [draft, setDraft] = useState<Appearance | null>(null);
+  const appearance = draft ?? published;
   // Re-check every minute so the theme flips on its own when a festival window opens or closes.
   const minute = useNow(60_000);
 
@@ -133,6 +171,10 @@ function PromoProvider({ children }: { children: ReactNode }) {
       const s = await ds.promotions();
       setOffers(s.offers);
       setFestivals(s.festivals);
+      const look = mergeAppearance(s.appearance);
+      setPublished(look);
+      // Cached so the next visit paints the right banners and colours straight away.
+      store.set(LOOK_CACHE, { ...look, heroSlides: look.heroSlides.filter((x) => !x.image?.startsWith('data:')), categoryBanners: {} });
     } finally {
       setReady(true);
     }
@@ -143,8 +185,9 @@ function PromoProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(t);
   }, [refresh]);
 
-  const resolved = useMemo(() => resolveTheme(festivals, previewDate ?? minute), [festivals, previewDate, minute]);
+  const resolved = useMemo(() => resolveSiteTheme(festivals, appearance, previewDate ?? minute), [festivals, appearance, previewDate, minute]);
   useEffect(() => applyTheme(resolved.theme), [resolved]);
+  useEffect(() => applyLook(appearance), [appearance]);
   useEffect(() => {
     document.documentElement.dataset.festival = resolved.occurrence?.festival.id ?? 'none';
   }, [resolved]);
@@ -154,6 +197,8 @@ function PromoProvider({ children }: { children: ReactNode }) {
     offers,
     festivals,
     resolved,
+    appearance,
+    setAppearanceDraft: setDraft,
     previewDate,
     setPreviewDate: (d) => {
       setPreview(d);
@@ -170,7 +215,7 @@ function PromoProvider({ children }: { children: ReactNode }) {
     },
     refresh,
     dealFor: (p) => bestDeal(p, offers, new Date()),
-  }), [ready, offers, festivals, resolved, previewDate, clipped, refresh]);
+  }), [ready, offers, festivals, resolved, appearance, previewDate, clipped, refresh]);
 
   return <PromoContext.Provider value={value}>{children}</PromoContext.Provider>;
 }
@@ -275,12 +320,55 @@ function CartProvider({ children }: { children: ReactNode }) {
   return <CartCtx.Provider value={value}>{children}</CartCtx.Provider>;
 }
 
+// ------------------------------------------------------------------ watchlist
+
+interface WatchState {
+  has: (productId: string) => boolean;
+  /** Returns false when the shopper must sign in first. */
+  toggle: (productId: string) => Promise<boolean>;
+}
+const WatchCtx = createContext<WatchState>(null!);
+export const useWatch = () => useContext(WatchCtx);
+
+function WatchProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const toast = useToast();
+  const [ids, setIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!user) return setIds(new Set());
+    ds.watchlist().then((w) => setIds(new Set(w.map((p) => p.id)))).catch(() => {});
+  }, [user]);
+  const value = useMemo<WatchState>(() => ({
+    has: (id) => ids.has(id),
+    toggle: async (id) => {
+      if (!user) return false;
+      const on = !ids.has(id);
+      try {
+        await ds.setWatched(id, on);
+        setIds((s) => {
+          const n = new Set(s);
+          if (on) n.add(id);
+          else n.delete(id);
+          return n;
+        });
+        toast(on ? 'Saved to your watchlist' : 'Removed from watchlist', 'success');
+      } catch (e) {
+        toast(errorText(e), 'error');
+      }
+      return true;
+    },
+  }), [ids, user, toast]);
+  return <WatchCtx.Provider value={value}>{children}</WatchCtx.Provider>;
+}
+
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
       <AuthProvider>
         <PromoProvider>
-          <CartProvider>{children}</CartProvider>
+          <CartProvider>
+            <WatchProvider>{children}</WatchProvider>
+          </CartProvider>
         </PromoProvider>
       </AuthProvider>
     </ToastProvider>

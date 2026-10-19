@@ -1,3 +1,4 @@
+import type { Appearance } from '@engine';
 import { config } from '../../config/env';
 import { store } from '../../lib/storage';
 import type { AdminApi, DataSource, PaymentUi } from '../source';
@@ -211,6 +212,14 @@ export class ApiDataSource implements DataSource {
     templateUrl: (kind) => `${this.base}/admin/templates/${kind}.xlsx`,
     seed: (count) => this.call<ImportJob>('POST', '/admin/seed', { count }),
     wipeDummy: () => this.call<{ deleted: number }>('DELETE', '/admin/products/dummy'),
+    appearance: () => this.call<Appearance>('GET', '/admin/appearance'),
+    saveAppearance: (a) => this.call<Appearance>('PUT', '/admin/appearance', a),
+    resetAppearance: () => this.call<Appearance>('POST', '/admin/appearance/reset'),
+    uploadMedia: async (file, name) => {
+      const f = new FormData();
+      f.append('file', file, name);
+      return (await this.call<{ url: string }>('POST', '/admin/media', undefined, f)).url;
+    },
   };
 }
 

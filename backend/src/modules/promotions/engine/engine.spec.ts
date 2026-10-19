@@ -1,5 +1,5 @@
 import {
-  DEFAULT_FESTIVALS, Offer, activeFestival, draftFestivalOffers, dueReminders, mergeCalendar, quote, resolveTheme, upcomingFestivals,
+  DEFAULT_APPEARANCE, DEFAULT_FESTIVALS, Offer, activeFestival, mergeAppearance, resolveSiteTheme, validateAppearance, draftFestivalOffers, dueReminders, mergeCalendar, quote, resolveTheme, upcomingFestivals,
 } from './index';
 
 const at = (s: string) => new Date(s);
@@ -22,6 +22,8 @@ const now = at('2026-10-19T12:00:00+05:30');
 describe('festival calendar', () => {
   it('switches theme ahead of a festival, picks the highest priority and reverts afterwards', () => {
     expect(activeFestival(DEFAULT_FESTIVALS, at('2026-10-15T10:00:00+05:30'))?.festival.id).toBe('navratri');
+    // Dussehra (the day after Navratri ends) takes over three days ahead.
+    expect(activeFestival(DEFAULT_FESTIVALS, at('2026-10-19T10:00:00+05:30'))?.festival.id).toBe('dussehra');
     // Diwali (priority 100) lead-up starts 12 days before 6 Nov.
     const diwali = resolveTheme(DEFAULT_FESTIVALS, at('2026-10-28T10:00:00+05:30'));
     expect(diwali.occurrence?.festival.id).toBe('diwali');
@@ -134,5 +136,30 @@ describe('offer pricing', () => {
     expect(quote({ ...base, offers: [offer({ code: 'OLD', endsAt: '2026-02-01T00:00:00Z' })], couponCode: 'OLD' }).couponError).toMatch(/expired/);
     expect(quote({ ...base, offers: [offer({ id: 'u', code: 'ONCE', perUserLimit: 1 })], couponCode: 'ONCE', usage: { u: 1 } }).couponError).toMatch(/already used/);
     expect(quote({ ...base, offers: [offer({ code: 'DRAFT', isActive: false })], couponCode: 'DRAFT' }).couponError).toMatch(/not a valid/);
+  });
+});
+
+describe('appearance', () => {
+  it('defaults are valid and unknown fields are dropped', () => {
+    expect(validateAppearance(DEFAULT_APPEARANCE)).toEqual([]);
+    const a = mergeAppearance({ radius: 8, junk: 1 } as never);
+    expect(a.radius).toBe(8);
+    expect('junk' in a).toBe(false);
+  });
+
+  it('can force a festival theme until a date, or keep the everyday look', () => {
+    const forced = mergeAppearance({ themeMode: 'festival', forcedFestivalId: 'diwali', forcedUntil: '2026-10-25' });
+    expect(resolveSiteTheme(DEFAULT_FESTIVALS, forced, now).occurrence?.festival.id).toBe('diwali');
+    expect(resolveSiteTheme(DEFAULT_FESTIVALS, forced, at('2026-10-26T10:00:00+05:30')).occurrence?.festival.id).toBe('diwali'); // calendar lead-up
+    expect(resolveSiteTheme(DEFAULT_FESTIVALS, forced, at('2026-10-26T10:00:00+05:30')).phase).toBe('lead-up');
+    const everyday = mergeAppearance({ themeMode: 'everyday', base: { ...DEFAULT_APPEARANCE.base, primary: '#123456' } });
+    const t = resolveSiteTheme(DEFAULT_FESTIVALS, everyday, now);
+    expect(t.occurrence).toBeNull();
+    expect(t.theme.primary).toBe('#123456');
+  });
+
+  it('rejects unsafe or broken settings', () => {
+    const bad = mergeAppearance({ heroSlides: [{ ...DEFAULT_APPEARANCE.heroSlides[0], link: 'javascript:alert(1)', image: 'ftp://x' }] });
+    expect(validateAppearance(bad).length).toBe(2);
   });
 });
