@@ -1,5 +1,5 @@
 import { pendingCount } from '@engine';
-import { FormEvent, ReactNode, useEffect, useState } from 'react';
+import { FormEvent, KeyboardEvent, ReactNode, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { config } from '../config/env';
 import { site } from '../config/site';
@@ -58,30 +58,127 @@ function notifyBrowser(reminders: AdminReminder[]) {
   if (fresh.length) store.set('dg.notified', [...seen, ...fresh.map((r) => r.id)].slice(-200));
 }
 
+interface Suggestion { key: string; label: string; hint?: string; to: string }
+
+/** Bold the part of `text` that matches what was typed. */
+function Highlight({ text, q }: { text: string; q: string }) {
+  const i = text.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0 || !q) return <>{text}</>;
+  return <>{text.slice(0, i)}<mark>{text.slice(i, i + q.length)}</mark>{text.slice(i + q.length)}</>;
+}
+
 function SearchBar({ categories }: { categories: Category[] }) {
   const [params] = useSearchParams();
   const nav = useNavigate();
   const [q, setQ] = useState(params.get('q') ?? '');
   const [cat, setCat] = useState(params.get('category') ?? '');
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const [products, setProducts] = useState<Suggestion[]>([]);
   useEffect(() => {
     setQ(params.get('q') ?? '');
   }, [params]);
+
+  // Type-ahead: matching categories straight away, product titles after a short pause.
+  const term = q.trim();
+  useEffect(() => {
+    if (term.length < 2) {
+      setProducts([]);
+      return;
+    }
+    let alive = true;
+    const t = setTimeout(() => {
+      ds.search({ q: term, category: cat || undefined, pageSize: 5 })
+        .then((r) => alive && setProducts(r.items.map((p) => ({ key: p.id, label: p.title, to: `/product/${p.id}` }))))
+        .catch(() => {});
+    }, 150);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, [term, cat]);
+  const suggestions: Suggestion[] = term.length < 2 ? [] : [
+    ...categories
+      .filter((c) => c.name.toLowerCase().includes(term.toLowerCase()))
+      .slice(0, 3)
+      .map((c) => ({ key: `c-${c.id}`, label: c.name, hint: 'Category', to: `/search?category=${c.slug}` })),
+    ...products,
+  ];
+  const show = open && suggestions.length > 0;
+
+  const go = (to: string) => {
+    setOpen(false);
+    setActive(-1);
+    nav(to);
+  };
   const submit = (e: FormEvent) => {
     e.preventDefault();
+    if (show && active >= 0) return go(suggestions[active].to);
     const u = new URLSearchParams();
-    if (q.trim()) u.set('q', q.trim());
+    if (term) u.set('q', term);
     if (cat) u.set('category', cat);
-    nav(`/search?${u}`);
+    go(`/search?${u}`);
+  };
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown' && suggestions.length) {
+      e.preventDefault();
+      setOpen(true);
+      setActive((a) => (a + 1) % suggestions.length);
+    } else if (e.key === 'ArrowUp' && suggestions.length) {
+      e.preventDefault();
+      setActive((a) => (a <= 0 ? suggestions.length - 1 : a - 1));
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+    }
   };
   return (
     <form className="search" role="search" onSubmit={submit}>
-      <div className="search-box">
-        <Icon name="search" size={20} className="search-icon" />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search for anything" aria-label="Search products" enterKeyHint="search" />
-        <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Search in category" className="search-cat only-desktop">
-          <option value="">All Categories</option>
-          {categories.filter((c) => !c.parentId).map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
-        </select>
+      <div className="search-wrap">
+        <div className="search-box">
+          <Icon name="search" size={20} className="search-icon" />
+          <input
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setOpen(true);
+              setActive(-1);
+            }}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setOpen(false)}
+            onKeyDown={onKeyDown}
+            placeholder="Search for anything"
+            aria-label="Search products"
+            enterKeyHint="search"
+            role="combobox"
+            aria-expanded={show}
+            aria-controls="search-suggest"
+            aria-autocomplete="list"
+            aria-activedescendant={show && active >= 0 ? `sug-${active}` : undefined}
+            autoComplete="off"
+          />
+          <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Search in category" className="search-cat only-desktop">
+            <option value="">All Categories</option>
+            {categories.filter((c) => !c.parentId).map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
+          </select>
+        </div>
+        {show && (
+          <ul className="suggest" id="search-suggest" role="listbox">
+            {suggestions.map((s, i) => (
+              <li
+                key={s.key}
+                id={`sug-${i}`}
+                role="option"
+                aria-selected={i === active}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => go(s.to)}
+              >
+                <Icon name={s.hint ? 'grid' : 'search'} size={16} />
+                <span><Highlight text={s.label} q={term} /></span>
+                {s.hint && <span className="muted">{s.hint}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <button type="submit" className="search-btn"><span className="only-desktop">Search</span><Icon name="search" size={22} className="only-mobile" /></button>
     </form>
@@ -338,7 +435,10 @@ export function Layout({ children }: { children: ReactNode }) {
       <a href="#main" className="skip">Skip to content</a>
       <AnnouncementBar />
       <Header />
-      <main id="main" className="site-main">{children}</main>
+      <main id="main" className="site-main">
+        {/* Re-keyed per page so each page eases in rather than snapping. */}
+        <div key={pathname} className="page-enter">{children}</div>
+      </main>
       <Footer />
       <TabBar />
     </div>

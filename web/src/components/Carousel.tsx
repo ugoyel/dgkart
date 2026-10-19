@@ -22,11 +22,16 @@ export function Carousel({ slides, settings, label, className = '' }: {
   // In "slide" mode the track holds [last, ...slides, first] so it can loop without jumping back.
   const [pos, setPos] = useState(loop ? 1 : 0);
   const [animate, setAnimate] = useState(true);
-  const [drag, setDrag] = useState(0);
+  // Dragging moves the track directly (no React render per pointer move), so swipes stay at 60fps.
+  const [dragging, setDragging] = useState(false);
+  // After a swipe, finish with a short ease-out that carries the finger's momentum.
+  const [fling, setFling] = useState(false);
   const [paused, setPaused] = useState(false);
   const [hover, setHover] = useState(false);
   const viewport = useRef<HTMLDivElement>(null);
-  const start = useRef<{ x: number; y: number; t: number; active: boolean; moved: boolean } | null>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const start = useRef<{ x: number; y: number; dx: number; lastX: number; lastT: number; v: number; active: boolean } | null>(null);
+  const frame = useRef(0);
   const suppressClick = useRef(false);
   const busy = useRef(false);
   const reduce = reducedMotion();
@@ -82,7 +87,7 @@ export function Carousel({ slides, settings, label, className = '' }: {
   }, [animate]);
 
   // Autoplay.
-  const playing = settings.autoplay && !paused && !hover && !reduce && n > 1 && drag === 0;
+  const playing = settings.autoplay && !paused && !hover && !reduce && n > 1 && !dragging;
   useEffect(() => {
     if (!playing) return;
     const t = setTimeout(() => go(1), settings.intervalMs);
@@ -90,9 +95,21 @@ export function Carousel({ slides, settings, label, className = '' }: {
   }, [playing, pos, settings.intervalMs, go]);
 
   // ----- drag / swipe
+  const paint = () => {
+    frame.current = 0;
+    const s = start.current;
+    const el = track.current;
+    if (!s || !el) return;
+    const width = viewport.current?.clientWidth ?? 1;
+    if (effect === 'slide') {
+      el.style.transform = `translate3d(${-pos * width + s.dx}px, 0, 0)`;
+    } else {
+      el.style.transform = `translate3d(${s.dx * 0.25}px, 0, 0)`;
+    }
+  };
   const onPointerDown = (e: PointerEvent) => {
     if (n < 2 || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    start.current = { x: e.clientX, y: e.clientY, t: performance.now(), active: false, moved: false };
+    start.current = { x: e.clientX, y: e.clientY, dx: 0, lastX: e.clientX, lastT: performance.now(), v: 0, active: false };
   };
   const onPointerMove = (e: PointerEvent) => {
     const s = start.current;
@@ -107,21 +124,46 @@ export function Carousel({ slides, settings, label, className = '' }: {
       if (Math.abs(dx) < 6) return;
       s.active = true;
       viewport.current?.setPointerCapture(e.pointerId);
+      if (track.current) track.current.style.transition = 'none';
+      setDragging(true);
     }
-    s.moved = true;
-    setAnimate(false);
-    setDrag(dx);
+    // Velocity from the most recent movement, smoothed, so a quick flick counts even after a slow start.
+    const now = performance.now();
+    const dt = Math.max(1, now - s.lastT);
+    s.v = 0.7 * ((e.clientX - s.lastX) / dt) + 0.3 * s.v;
+    s.lastX = e.clientX;
+    s.lastT = now;
+    // Resist past the ends when the slider does not loop.
+    s.dx = !loop && ((index === 0 && dx > 0) || (index === n - 1 && dx < 0)) ? dx / 3 : dx;
+    if (!frame.current) frame.current = requestAnimationFrame(paint);
   };
   const onPointerUp = () => {
     const s = start.current;
     start.current = null;
     if (!s?.active) return;
+    cancelAnimationFrame(frame.current);
+    frame.current = 0;
     const width = viewport.current?.clientWidth ?? 1;
-    const velocity = Math.abs(drag) / Math.max(1, performance.now() - s.t);
-    suppressClick.current = s.moved;
-    setAnimate(true);
-    if (Math.abs(drag) > width * 0.18 || velocity > 0.6) go(drag < 0 ? 1 : -1);
-    setDrag(0);
+    suppressClick.current = true;
+    // Touch swipes fire no click afterwards; don't swallow the next real tap.
+    setTimeout(() => (suppressClick.current = false), 80);
+    const flick = Math.abs(s.v) > 0.45 && Math.sign(s.v) === Math.sign(s.dx);
+    const delta = Math.abs(s.dx) > width * 0.2 || flick ? (s.dx < 0 ? 1 : -1) : 0;
+    const el = track.current;
+    if (el) {
+      // Hand the track back to React's position, animating from where the finger let go.
+      el.style.transition = `transform ${Math.min(speed, 420)}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+      el.style.transform = effect === 'slide' ? `translate3d(${-pos * 100}%, 0, 0)` : '';
+    }
+    setFling(true);
+    setTimeout(() => setFling(false), Math.min(speed, 420) + 60);
+    setDragging(false);
+    if (delta) {
+      busy.current = false;
+      go(delta);
+    } else {
+      setAnimate(true);
+    }
   };
   const onClickCapture = (e: MouseEvent) => {
     if (suppressClick.current) {
@@ -136,8 +178,10 @@ export function Carousel({ slides, settings, label, className = '' }: {
   };
 
   if (n === 0) return null;
-  const transition = animate && drag === 0 && speed > 0;
-  const ease = SLIDE_EASINGS[settings.easing];
+  const transition = animate && !dragging && speed > 0;
+  // A released swipe finishes faster with a strong ease-out, like native scrolling.
+  const ease = fling ? 'cubic-bezier(0.22, 1, 0.36, 1)' : SLIDE_EASINGS[settings.easing];
+  const duration = fling ? Math.min(speed, 420) : speed;
   const items = loop ? [slides[n - 1], ...slides, slides[0]] : slides;
 
   return (
@@ -163,10 +207,11 @@ export function Carousel({ slides, settings, label, className = '' }: {
       >
         {effect === 'slide' ? (
           <div
-            className="carousel-track"
+            className={`carousel-track${dragging ? ' dragging' : ''}`}
+            ref={track}
             style={{
-              transform: `translate3d(calc(${-pos * 100}% + ${drag}px), 0, 0)`,
-              transition: transition ? `transform ${speed}ms ${ease}` : 'none',
+              transform: `translate3d(${-pos * 100}%, 0, 0)`,
+              transition: transition ? `transform ${duration}ms ${ease}` : 'none',
             }}
             onTransitionEnd={(e) => e.target === e.currentTarget && onTransitionEnd()}
           >
@@ -181,7 +226,7 @@ export function Carousel({ slides, settings, label, className = '' }: {
             })}
           </div>
         ) : (
-          <div className="carousel-stack" style={{ transform: drag ? `translate3d(${drag * 0.25}px,0,0)` : undefined }}>
+          <div className="carousel-stack" ref={track} style={{ transition: dragging ? 'none' : `transform ${Math.min(speed, 420)}ms cubic-bezier(0.22, 1, 0.36, 1)` }}>
             {slides.map((s, k) => (
               <div
                 key={k}
@@ -191,7 +236,7 @@ export function Carousel({ slides, settings, label, className = '' }: {
                 aria-label={`${k + 1} of ${n}`}
                 aria-hidden={k !== index}
                 inert={k !== index ? true : undefined}
-                style={{ transition: speed ? `opacity ${speed}ms ${ease}, transform ${Math.round(speed * 1.6)}ms ${ease}` : 'none' }}
+                style={{ transition: speed ? `opacity ${speed}ms ${ease}, transform ${Math.round(speed * 1.6)}ms ${ease}` : 'none', transitionDelay: k === index ? '0ms' : `${Math.round(speed * 0.15)}ms` }}
               >
                 {s}
               </div>

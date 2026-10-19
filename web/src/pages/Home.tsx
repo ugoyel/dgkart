@@ -1,6 +1,7 @@
 import { Offer, OfferKind, isLive, isUpcoming, upcomingFestivals } from '@engine';
 import { Link } from 'react-router-dom';
 import { HomeSlider } from '../components/Banners';
+import { RecentlyViewed } from '../components/Extras';
 import { Icon } from '../components/Icon';
 import { useCategories } from '../components/Layout';
 import { Countdown, Empty, Img, ProductCard, Rail, SkeletonGrid, useTitle } from '../components/ui';
@@ -69,6 +70,8 @@ export function Home() {
             </Link>
           ))}
         </section>
+
+        <RecentlyViewed />
 
         {lightning.length > 0 && (
           <Rail title={<><Icon name="bolt" className="accent" /> Lightning Deals</>} to="/deals?tab=lightning">

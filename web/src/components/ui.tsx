@@ -19,6 +19,7 @@ export function Logo({ light = false }: { light?: boolean }) {
 
 export function Img({ src, alt, className }: { src: string | null | undefined; alt: string; className?: string }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   if (!src || failed) {
     return (
       <div className={`img-fallback ${className ?? ''}`} role="img" aria-label={alt}>
@@ -26,7 +27,21 @@ export function Img({ src, alt, className }: { src: string | null | undefined; a
       </div>
     );
   }
-  return <img src={src} alt={alt} className={className} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
+  // Fade pictures in as they arrive instead of popping in line by line.
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`img-fade${loaded ? ' loaded' : ''}${className ? ` ${className}` : ''}`}
+      loading="lazy"
+      decoding="async"
+      ref={(el) => {
+        if (el?.complete && el.naturalWidth && !loaded) setLoaded(true);
+      }}
+      onLoad={() => setLoaded(true)}
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 export function Stars({ rating, count }: { rating: number; count?: number }) {
