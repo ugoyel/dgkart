@@ -18,5 +18,22 @@
   <body>
     <div id="root"></div>
     <noscript>DGkart needs JavaScript to run.</noscript>
+    <script>
+      // If the app fails to start, show why instead of a blank page.
+      (function () {
+        var errors = [];
+        window.addEventListener('error', function (e) { errors.push((e.message || 'Failed to load ' + ((e.target && (e.target.src || e.target.href)) || 'a file'))); }, true);
+        window.addEventListener('unhandledrejection', function (e) { errors.push(String(e.reason && e.reason.message || e.reason)); });
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          if (!root || root.childElementCount) return;
+          root.innerHTML = '<div style="max-width:520px;margin:15vh auto;padding:24px;font:16px system-ui,sans-serif;text-align:center">' +
+            '<h2>DGkart didn\u2019t load</h2><p>Please reload the page.</p>' +
+            '<button onclick="location.reload()" style="padding:10px 20px;font-size:16px">Reload</button>' +
+            '<p id="boot-details" style="color:#666;font-size:13px;margin-top:16px"></p></div>';
+          document.getElementById('boot-details').textContent = 'Details: ' + (errors.join(' | ') || 'none') + ' \u00b7 ' + navigator.userAgent;
+        }, 8000);
+      })();
+    </script>
   </body>
 </html>
