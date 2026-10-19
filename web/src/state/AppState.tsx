@@ -186,8 +186,12 @@ function PromoProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const resolved = useMemo(() => resolveSiteTheme(festivals, appearance, previewDate ?? minute), [festivals, appearance, previewDate, minute]);
-  useEffect(() => applyTheme(resolved.theme), [resolved]);
-  useEffect(() => applyLook(appearance), [appearance]);
+  useEffect(() => {
+    applyTheme(resolved.theme);
+  }, [resolved]);
+  useEffect(() => {
+    applyLook(appearance);
+  }, [appearance]);
   useEffect(() => {
     document.documentElement.dataset.festival = resolved.occurrence?.festival.id ?? 'none';
   }, [resolved]);

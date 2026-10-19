@@ -63,7 +63,9 @@ function SearchBar({ categories }: { categories: Category[] }) {
   const nav = useNavigate();
   const [q, setQ] = useState(params.get('q') ?? '');
   const [cat, setCat] = useState(params.get('category') ?? '');
-  useEffect(() => setQ(params.get('q') ?? ''), [params]);
+  useEffect(() => {
+    setQ(params.get('q') ?? '');
+  }, [params]);
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const u = new URLSearchParams();
@@ -90,7 +92,9 @@ function SearchBar({ categories }: { categories: Category[] }) {
 function CategoryMenu({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false);
   const loc = useLocation();
-  useEffect(() => setOpen(false), [loc.pathname, loc.search]);
+  useEffect(() => {
+    setOpen(false);
+  }, [loc.pathname, loc.search]);
   const roots = categories.filter((c) => !c.parentId);
   return (
     <div className="catmenu only-desktop" onMouseLeave={() => setOpen(false)}>
@@ -116,7 +120,9 @@ function Bell({ reminders }: { reminders: AdminReminder[] }) {
   const [open, setOpen] = useState(false);
   const pending = pendingCount(reminders);
   const loc = useLocation();
-  useEffect(() => setOpen(false), [loc.pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [loc.pathname]);
   return (
     <div className="bell">
       <button className="icon-btn header-icon" onClick={() => setOpen((o) => !o)} aria-label={`Admin notifications (${pending} need action)`} aria-expanded={open}>
@@ -323,7 +329,10 @@ function TabBar() {
 
 export function Layout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  // Block body: newer browsers return a Promise from scrollTo, which React would call as a cleanup.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return (
     <div className="app">
       <a href="#main" className="skip">Skip to content</a>
