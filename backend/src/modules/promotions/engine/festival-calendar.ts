@@ -1,0 +1,193 @@
+import { Festival, FestivalOfferTemplate, FestivalTheme } from './types';
+
+/**
+ * Default Indian festival calendar.
+ *
+ * Dates are IST calendar days. Lunar / moon-sighting festivals (marked
+ * `approximate`) move every year, so add next year's dates here or, without a
+ * deploy, in Admin → Festivals (saved by the API and merged over this file).
+ * A festival with no dates for a year is simply skipped that year.
+ */
+
+const offer = (o: Partial<FestivalOfferTemplate>): FestivalOfferTemplate => ({
+  salePercent: 15,
+  categories: [],
+  couponPercent: 10,
+  couponMaxDiscount: 300,
+  couponMinOrder: 799,
+  bankPercent: 10,
+  bankMaxDiscount: 1000,
+  bankMinOrder: 2999,
+  lightningDeals: 6,
+  lightningPercent: 30,
+  ...o,
+});
+
+const theme = (t: Omit<FestivalTheme, 'footerText'> & { footerText?: string }): FestivalTheme => ({ footerText: '#FFFFFF', ...t });
+
+/** DGkart's everyday look (matches the app's DkColors). */
+export const BASE_THEME: FestivalTheme = {
+  primary: '#1A56DB',
+  primaryDark: '#0B3BA8',
+  accent: '#F97316',
+  headerBg: '#FFFFFF',
+  headerText: '#0F1E3D',
+  footerBg: '#0F1E3D',
+  footerText: '#E5E7EB',
+  bannerBg: 'linear-gradient(120deg,#0B3BA8 0%,#1A56DB 60%,#F97316 140%)',
+  motif: 'sparkle',
+  decor: 'none',
+};
+
+export const DEFAULT_FESTIVALS: Festival[] = [
+  {
+    id: 'pongal',
+    name: 'Pongal & Makar Sankranti',
+    greeting: 'Happy Pongal & Sankranti',
+    tagline: 'Harvest season savings on home, kitchen and more',
+    dates: { '2026': { start: '2026-01-14', end: '2026-01-17' }, '2027': { start: '2027-01-14', end: '2027-01-17' } },
+    priority: 40, themeLeadDays: 5, themeTrailDays: 1, reminderWeeks: [4, 2, 1], enabled: true,
+    theme: theme({ primary: '#B45309', primaryDark: '#78350F', accent: '#16A34A', headerBg: 'linear-gradient(90deg,#92400E,#CA8A04)', headerText: '#FFFBEB', footerBg: '#451A03', bannerBg: 'linear-gradient(120deg,#78350F 0%,#CA8A04 60%,#16A34A 130%)', motif: 'kite', decor: 'bunting' }),
+    offerTemplate: offer({ categories: ['home-garden', 'kitchen'], salePercent: 15 }),
+  },
+  {
+    id: 'republic-day',
+    name: 'Republic Day',
+    greeting: 'Happy Republic Day',
+    tagline: 'The Great Republic Day Sale',
+    dates: { '2026': { start: '2026-01-23', end: '2026-01-26' }, '2027': { start: '2027-01-23', end: '2027-01-26' } },
+    priority: 50, themeLeadDays: 4, themeTrailDays: 1, reminderWeeks: [4, 2, 1], enabled: true,
+    theme: theme({ primary: '#1E3A8A', primaryDark: '#172554', accent: '#FF9933', headerBg: '#FFFFFF', headerText: '#0F1E3D', footerBg: '#0B1D4D', bannerBg: 'linear-gradient(180deg,#FF9933 0%,#FFB766 30%,#FFFFFF 48%,#FFFFFF 52%,#5FB85F 70%,#138808 100%)', motif: 'tricolor', decor: 'tricolor' }),
+    offerTemplate: offer({ categories: ['electronics'], salePercent: 20, bankPercent: 10, bankMaxDiscount: 1500, bankMinOrder: 4999, lightningDeals: 8 }),
+  },
+  {
+    id: 'holi',
+    name: 'Holi',
+    greeting: 'Happy Holi',
+    tagline: 'Splash into colourful deals',
+    dates: { '2026': { start: '2026-03-03', end: '2026-03-04' }, '2027': { start: '2027-03-21', end: '2027-03-22' } },
+    priority: 60, themeLeadDays: 7, themeTrailDays: 1, reminderWeeks: [4, 2, 1], enabled: true, approximate: true,
+    theme: theme({ primary: '#C026D3', primaryDark: '#86198F', accent: '#F59E0B', headerBg: 'linear-gradient(90deg,#EC4899,#F59E0B,#22C55E,#3B82F6,#8B5CF6)', headerText: '#FFFFFF', footerBg: '#3B0764', bannerBg: 'linear-gradient(120deg,#DB2777 0%,#F59E0B 35%,#22C55E 65%,#3B82F6 100%)', motif: 'colors', decor: 'bunting' }),
+    offerTemplate: offer({ categories: ['fashion', 'health-beauty'], salePercent: 20 }),
+  },
+  {
+    id: 'eid-ul-fitr',
+    name: 'Eid al-Fitr',
+    greeting: 'Eid Mubarak',
+    tagline: 'Celebrate Eid with special offers',
+    dates: { '2026': { start: '2026-03-20', end: '2026-03-21' }, '2027': { start: '2027-03-10', end: '2027-03-11' } },
+    priority: 55, themeLeadDays: 7, themeTrailDays: 2, reminderWeeks: [4, 2, 1], enabled: true, approximate: true,
+    theme: theme({ primary: '#047857', primaryDark: '#064E3B', accent: '#D4A017', headerBg: 'linear-gradient(90deg,#064E3B,#047857)', headerText: '#FEFCE8', footerBg: '#022C22', footerText: '#FDE68A', bannerBg: 'linear-gradient(120deg,#022C22 0%,#047857 60%,#D4A017 140%)', motif: 'crescent', decor: 'lights' }),
+    offerTemplate: offer({ categories: ['fashion', 'jewellery'], salePercent: 15 }),
+  },
+  {
+    id: 'eid-ul-adha',
+    name: 'Eid al-Adha',
+    greeting: 'Eid Mubarak',
+    tagline: 'Bakrid festive offers',
+    dates: { '2026': { start: '2026-05-27', end: '2026-05-28' }, '2027': { start: '2027-05-17', end: '2027-05-18' } },
+    priority: 45, themeLeadDays: 5, themeTrailDays: 1, reminderWeeks: [3, 1], enabled: true, approximate: true,
+    theme: theme({ primary: '#047857', primaryDark: '#064E3B', accent: '#D4A017', headerBg: 'linear-gradient(90deg,#064E3B,#047857)', headerText: '#FEFCE8', footerBg: '#022C22', footerText: '#FDE68A', bannerBg: 'linear-gradient(120deg,#022C22 0%,#047857 60%,#D4A017 140%)', motif: 'crescent', decor: 'lights' }),
+    offerTemplate: offer({ categories: ['fashion'], salePercent: 10 }),
+  },
+  {
+    id: 'independence-day',
+    name: 'Independence Day',
+    greeting: 'Happy Independence Day',
+    tagline: 'Freedom Sale: India’s biggest savings',
+    dates: { '2026': { start: '2026-08-12', end: '2026-08-15' }, '2027': { start: '2027-08-12', end: '2027-08-15' } },
+    priority: 50, themeLeadDays: 4, themeTrailDays: 1, reminderWeeks: [4, 2, 1], enabled: true,
+    theme: theme({ primary: '#1E3A8A', primaryDark: '#172554', accent: '#FF9933', headerBg: '#FFFFFF', headerText: '#0F1E3D', footerBg: '#0B1D4D', bannerBg: 'linear-gradient(180deg,#FF9933 0%,#FFB766 30%,#FFFFFF 48%,#FFFFFF 52%,#5FB85F 70%,#138808 100%)', motif: 'tricolor', decor: 'tricolor' }),
+    offerTemplate: offer({ categories: ['electronics'], salePercent: 20, bankMaxDiscount: 1500, bankMinOrder: 4999, lightningDeals: 8 }),
+  },
+  {
+    id: 'onam',
+    name: 'Onam',
+    greeting: 'Happy Onam',
+    tagline: 'Onam festive offers',
+    dates: { '2026': { start: '2026-08-20', end: '2026-08-26' }, '2027': { start: '2027-09-07', end: '2027-09-12' } },
+    priority: 35, themeLeadDays: 3, themeTrailDays: 1, reminderWeeks: [4, 2], enabled: true, approximate: true,
+    theme: theme({ primary: '#15803D', primaryDark: '#14532D', accent: '#EAB308', headerBg: 'linear-gradient(90deg,#14532D,#15803D)', headerText: '#FEFCE8', footerBg: '#052E16', footerText: '#FDE68A', bannerBg: 'linear-gradient(120deg,#14532D 0%,#15803D 50%,#EAB308 120%)', motif: 'pookalam', decor: 'toran' }),
+    offerTemplate: offer({ categories: ['home-garden', 'fashion'], salePercent: 15 }),
+  },
+  {
+    id: 'raksha-bandhan',
+    name: 'Raksha Bandhan',
+    greeting: 'Happy Raksha Bandhan',
+    tagline: 'Gifts for your sibling, delivered on time',
+    dates: { '2026': { start: '2026-08-28', end: '2026-08-28' }, '2027': { start: '2027-08-17', end: '2027-08-17' } },
+    priority: 55, themeLeadDays: 10, themeTrailDays: 1, reminderWeeks: [4, 2, 1], enabled: true, approximate: true,
+    theme: theme({ primary: '#DB2777', primaryDark: '#9D174D', accent: '#F59E0B', headerBg: 'linear-gradient(90deg,#BE185D,#EC4899)', headerText: '#FFF1F2', footerBg: '#500724', bannerBg: 'linear-gradient(120deg,#9D174D 0%,#EC4899 55%,#FBBF24 130%)', motif: 'rakhi', decor: 'bunting' }),
+    offerTemplate: offer({ categories: ['jewellery', 'health-beauty'], salePercent: 15, couponMinOrder: 499 }),
+  },
+  {
+    id: 'janmashtami',
+    name: 'Janmashtami',
+    greeting: 'Happy Janmashtami',
+    tagline: 'Festive picks for Krishna Janmashtami',
+    dates: { '2026': { start: '2026-09-04', end: '2026-09-04' }, '2027': { start: '2027-08-25', end: '2027-08-25' } },
+    priority: 30, themeLeadDays: 3, themeTrailDays: 1, reminderWeeks: [2], enabled: true, approximate: true,
+    theme: theme({ primary: '#1D4ED8', primaryDark: '#1E3A8A', accent: '#EAB308', headerBg: 'linear-gradient(90deg,#1E3A8A,#2563EB)', headerText: '#FEFCE8', footerBg: '#172554', footerText: '#FDE68A', bannerBg: 'linear-gradient(120deg,#1E3A8A 0%,#2563EB 55%,#EAB308 130%)', motif: 'lotus', decor: 'toran' }),
+    offerTemplate: offer({ salePercent: 10, lightningDeals: 4 }),
+  },
+  {
+    id: 'ganesh-chaturthi',
+    name: 'Ganesh Chaturthi',
+    greeting: 'Ganpati Bappa Morya',
+    tagline: 'Ganesh Chaturthi festive sale',
+    dates: { '2026': { start: '2026-09-14', end: '2026-09-24' }, '2027': { start: '2027-09-04', end: '2027-09-14' } },
+    priority: 50, themeLeadDays: 5, themeTrailDays: 1, reminderWeeks: [4, 2, 1], enabled: true, approximate: true,
+    theme: theme({ primary: '#EA580C', primaryDark: '#9A3412', accent: '#DC2626', headerBg: 'linear-gradient(90deg,#C2410C,#F97316)', headerText: '#FFF7ED', footerBg: '#431407', footerText: '#FED7AA', bannerBg: 'linear-gradient(120deg,#9A3412 0%,#EA580C 55%,#FACC15 130%)', motif: 'lotus', decor: 'toran' }),
+    offerTemplate: offer({ categories: ['home-garden'], salePercent: 15 }),
+  },
+  {
+    id: 'navratri',
+    name: 'Navratri',
+    greeting: 'Happy Navratri',
+    tagline: 'Nine nights of festive deals',
+    dates: { '2026': { start: '2026-10-11', end: '2026-10-19' }, '2027': { start: '2027-09-30', end: '2027-10-08' } },
+    priority: 60, themeLeadDays: 3, themeTrailDays: 0, reminderWeeks: [6, 4, 2, 1], enabled: true, approximate: true,
+    theme: theme({ primary: '#BE185D', primaryDark: '#831843', accent: '#F59E0B', headerBg: 'linear-gradient(90deg,#6B21A8,#BE185D,#EA580C)', headerText: '#FFF7ED', footerBg: '#3B0764', footerText: '#FDE68A', bannerBg: 'linear-gradient(120deg,#6B21A8 0%,#DB2777 50%,#F59E0B 110%)', motif: 'dandiya', decor: 'toran' }),
+    offerTemplate: offer({ categories: ['fashion', 'jewellery'], salePercent: 20, lightningDeals: 9 }),
+  },
+  {
+    id: 'dussehra',
+    name: 'Dussehra',
+    greeting: 'Happy Dussehra',
+    tagline: 'Victory of good, and of great prices',
+    dates: { '2026': { start: '2026-10-20', end: '2026-10-20' }, '2027': { start: '2027-10-09', end: '2027-10-09' } },
+    priority: 65, themeLeadDays: 0, themeTrailDays: 2, reminderWeeks: [4, 2, 1], enabled: true, approximate: true,
+    theme: theme({ primary: '#B45309', primaryDark: '#7C2D12', accent: '#DC2626', headerBg: 'linear-gradient(90deg,#7C2D12,#B45309)', headerText: '#FFFBEB', footerBg: '#431407', footerText: '#FED7AA', bannerBg: 'linear-gradient(120deg,#7C2D12 0%,#C2410C 50%,#FACC15 120%)', motif: 'bow', decor: 'toran' }),
+    offerTemplate: offer({ categories: ['electronics', 'motors'], salePercent: 15 }),
+  },
+  {
+    id: 'diwali',
+    name: 'Diwali',
+    greeting: 'Happy Diwali',
+    tagline: 'The Great Diwali Sale: lights, gifts and big savings',
+    dates: { '2026': { start: '2026-11-06', end: '2026-11-11' }, '2027': { start: '2027-10-27', end: '2027-10-31' } },
+    priority: 100, themeLeadDays: 12, themeTrailDays: 1, reminderWeeks: [8, 6, 4, 2, 1], enabled: true, approximate: true,
+    theme: theme({ primary: '#C2410C', primaryDark: '#7C2D12', accent: '#F59E0B', headerBg: 'linear-gradient(90deg,#3B0A45,#7C1D3F)', headerText: '#FFF7ED', footerBg: '#2A0A33', footerText: '#FDE68A', bannerBg: 'linear-gradient(120deg,#3B0A45 0%,#9D174D 55%,#F59E0B 115%)', motif: 'diya', decor: 'lights' }),
+    offerTemplate: offer({ salePercent: 25, couponPercent: 10, couponMaxDiscount: 500, couponMinOrder: 999, bankPercent: 10, bankMaxDiscount: 2000, bankMinOrder: 4999, lightningDeals: 12, lightningPercent: 40 }),
+  },
+  {
+    id: 'christmas',
+    name: 'Christmas',
+    greeting: 'Merry Christmas',
+    tagline: 'Gifts for everyone on your list',
+    dates: { '2026': { start: '2026-12-24', end: '2026-12-25' }, '2027': { start: '2027-12-24', end: '2027-12-25' } },
+    priority: 55, themeLeadDays: 10, themeTrailDays: 1, reminderWeeks: [4, 2, 1], enabled: true,
+    theme: theme({ primary: '#B91C1C', primaryDark: '#7F1D1D', accent: '#15803D', headerBg: 'linear-gradient(90deg,#7F1D1D,#B91C1C)', headerText: '#FEF2F2', footerBg: '#14532D', bannerBg: 'linear-gradient(120deg,#7F1D1D 0%,#B91C1C 50%,#15803D 120%)', motif: 'star', decor: 'lights' }),
+    offerTemplate: offer({ categories: ['kids-toys', 'electronics'], salePercent: 20 }),
+  },
+  {
+    id: 'new-year',
+    name: 'New Year',
+    greeting: 'Happy New Year',
+    tagline: 'Year-end clearance: ring in the savings',
+    dates: { '2026': { start: '2026-12-30', end: '2027-01-01' }, '2027': { start: '2027-12-30', end: '2028-01-01' } },
+    priority: 50, themeLeadDays: 3, themeTrailDays: 1, reminderWeeks: [3, 1], enabled: true,
+    theme: theme({ primary: '#4F46E5', primaryDark: '#312E81', accent: '#F59E0B', headerBg: 'linear-gradient(90deg,#0F172A,#312E81)', headerText: '#EEF2FF', footerBg: '#0F172A', bannerBg: 'linear-gradient(120deg,#0F172A 0%,#4338CA 55%,#F59E0B 130%)', motif: 'sparkle', decor: 'lights' }),
+    offerTemplate: offer({ salePercent: 20 }),
+  },
+];

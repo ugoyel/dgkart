@@ -59,6 +59,23 @@
         "tags": [
           "users"
         ]
+      },
+      "delete": {
+        "operationId": "UsersController_remove",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/v1/users/me/addresses": {
@@ -645,6 +662,349 @@
         ],
         "tags": [
           "orders"
+        ]
+      }
+    },
+    "/api/v1/promotions": {
+      "get": {
+        "operationId": "PromotionsController_state",
+        "parameters": [
+          {
+            "name": "at",
+            "required": false,
+            "in": "query",
+            "description": "Preview the theme at this time (ISO date)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "promotions"
+        ]
+      }
+    },
+    "/api/v1/promotions/quote": {
+      "post": {
+        "operationId": "PromotionsController_quote",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "promotions"
+        ]
+      }
+    },
+    "/api/v1/admin/offers": {
+      "get": {
+        "operationId": "AdminPromotionsController_all",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminPromotionsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfferDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/offers/{id}": {
+      "patch": {
+        "operationId": "AdminPromotionsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOfferDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminPromotionsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/festivals": {
+      "get": {
+        "operationId": "AdminPromotionsController_festivals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/festivals/{id}": {
+      "put": {
+        "operationId": "AdminPromotionsController_saveFestival",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FestivalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminPromotionsController_deleteFestival",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/festivals/reset": {
+      "post": {
+        "operationId": "AdminPromotionsController_resetFestivals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/festivals/{id}/drafts": {
+      "post": {
+        "operationId": "AdminPromotionsController_createDrafts",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/notifications": {
+      "get": {
+        "operationId": "AdminPromotionsController_notifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/notifications/{id}/dismiss": {
+      "post": {
+        "operationId": "AdminPromotionsController_dismiss",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
         ]
       }
     },
@@ -1459,11 +1819,360 @@
             "items": {
               "$ref": "#/components/schemas/LineDto"
             }
+          },
+          "couponCode": {
+            "type": "string",
+            "description": "Promo code"
+          },
+          "clippedCouponIds": {
+            "description": "Clip coupons ticked on product pages",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bank": {
+            "type": "string",
+            "description": "Bank for bank offers, e.g. \"HDFC Bank\""
+          },
+          "cardType": {
+            "type": "string",
+            "enum": [
+              "CREDIT",
+              "DEBIT",
+              "ANY"
+            ]
           }
         },
         "required": [
           "address",
           "paymentMethod"
+        ]
+      },
+      "QuoteLineDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "PaymentChoiceDto": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "ONLINE",
+              "COD"
+            ]
+          },
+          "bank": {
+            "type": "string"
+          },
+          "cardType": {
+            "type": "string",
+            "enum": [
+              "CREDIT",
+              "DEBIT",
+              "ANY"
+            ]
+          }
+        },
+        "required": [
+          "method"
+        ]
+      },
+      "QuoteDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteLineDto"
+            }
+          },
+          "couponCode": {
+            "type": "string"
+          },
+          "clippedCouponIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "payment": {
+            "$ref": "#/components/schemas/PaymentChoiceDto"
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "DiscountDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "PERCENT",
+              "FLAT"
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "maxDiscount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "type",
+          "value"
+        ]
+      },
+      "ScopeDto": {
+        "type": "object",
+        "properties": {
+          "productIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OfferDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "DEAL_OF_THE_DAY",
+              "LIGHTNING_DEAL",
+              "COUPON",
+              "BANK_OFFER",
+              "CATEGORY_SALE",
+              "FESTIVAL_SALE"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "discount": {
+            "$ref": "#/components/schemas/DiscountDto"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ScopeDto"
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "endsAt": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "stockLimit": {
+            "type": "object"
+          },
+          "perUserLimit": {
+            "type": "object"
+          },
+          "code": {
+            "type": "object"
+          },
+          "clip": {
+            "type": "boolean"
+          },
+          "minOrder": {
+            "type": "number"
+          },
+          "bank": {
+            "type": "object"
+          },
+          "cardType": {
+            "type": "string",
+            "enum": [
+              "CREDIT",
+              "DEBIT",
+              "ANY"
+            ]
+          },
+          "festivalId": {
+            "type": "object"
+          },
+          "bannerImage": {
+            "type": "object"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "kind",
+          "title",
+          "discount",
+          "scope",
+          "startsAt",
+          "endsAt",
+          "isActive"
+        ]
+      },
+      "UpdateOfferDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "DEAL_OF_THE_DAY",
+              "LIGHTNING_DEAL",
+              "COUPON",
+              "BANK_OFFER",
+              "CATEGORY_SALE",
+              "FESTIVAL_SALE"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "discount": {
+            "$ref": "#/components/schemas/DiscountDto"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ScopeDto"
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "endsAt": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "stockLimit": {
+            "type": "object"
+          },
+          "perUserLimit": {
+            "type": "object"
+          },
+          "code": {
+            "type": "object"
+          },
+          "clip": {
+            "type": "boolean"
+          },
+          "minOrder": {
+            "type": "number"
+          },
+          "bank": {
+            "type": "object"
+          },
+          "cardType": {
+            "type": "string",
+            "enum": [
+              "CREDIT",
+              "DEBIT",
+              "ANY"
+            ]
+          },
+          "festivalId": {
+            "type": "object"
+          },
+          "bannerImage": {
+            "type": "object"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        }
+      },
+      "FestivalDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "greeting": {
+            "type": "string"
+          },
+          "tagline": {
+            "type": "string"
+          },
+          "dates": {
+            "type": "object",
+            "example": {
+              "2026": {
+                "start": "2026-11-06",
+                "end": "2026-11-11"
+              }
+            }
+          },
+          "priority": {
+            "type": "number"
+          },
+          "themeLeadDays": {
+            "type": "number"
+          },
+          "themeTrailDays": {
+            "type": "number"
+          },
+          "reminderWeeks": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "theme": {
+            "type": "object"
+          },
+          "offerTemplate": {
+            "type": "object"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "approximate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "greeting",
+          "tagline",
+          "dates",
+          "priority",
+          "themeLeadDays",
+          "themeTrailDays",
+          "reminderWeeks",
+          "theme",
+          "offerTemplate",
+          "enabled"
         ]
       },
       "CheckoutDto": {

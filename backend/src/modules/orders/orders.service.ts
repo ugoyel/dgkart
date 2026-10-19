@@ -1,18 +1,26 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { Page, PageQuery, toPage } from '../../common/pagination';
 import { CartService } from '../cart/cart.service';
-import { Product } from '../catalog/product.entity';
 import { Address } from '../users/user.entity';
 import { Order, OrderLine, OrderStatus, PaymentMethod } from './order.entity';
-import { computeTotals } from './pricing';
+import { CardType } from '../promotions/engine';
+import { PromotionsService } from '../promotions/promotions.service';
+import { round2 } from './pricing';
 
 export interface PlaceOrderInput {
   address: Address;
   paymentMethod: PaymentMethod;
   /** Optional "Buy It Now" lines; when omitted the user's cart is checked out. */
   items?: { productId: string; quantity: number }[];
+  /** Promo code typed at checkout. */
+  couponCode?: string;
+  /** Clip coupons ticked on product pages. */
+  clippedCouponIds?: string[];
+  /** Bank / card for bank offers (online payments). */
+  bank?: string;
+  cardType?: CardType;
 }
 
 @Injectable()
@@ -20,6 +28,7 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order) private readonly orders: Repository<Order>,
     private readonly cart: CartService,
+    private readonly promotions: PromotionsService,
     private readonly db: DataSource,
   ) {}
 
@@ -31,10 +40,16 @@ export class OrdersService {
     if (!wanted.length) throw new BadRequestException('Your cart is empty');
 
     const order = await this.db.transaction(async (tx) => {
-      const products = await tx.getRepository(Product).find({ where: { id: In(wanted.map((w) => w.productId)), isActive: true } });
+      // Price with live deals, clip coupons, promo code and bank offer (same engine as the website).
+      const { quote, products } = await this.promotions.quote(userId, {
+        items: wanted,
+        couponCode: input.couponCode,
+        clippedCouponIds: input.clippedCouponIds,
+        payment: { method: input.paymentMethod, bank: input.bank, cardType: input.cardType },
+      }, tx);
+      if (input.couponCode && quote.couponError) throw new BadRequestException(quote.couponError);
       const byId = new Map(products.map((p) => [p.id, p]));
       const lines: OrderLine[] = [];
-      const pricing = [];
       for (const w of wanted) {
         const p = byId.get(w.productId);
         if (!p) throw new BadRequestException('An item in your cart is no longer available');
@@ -44,16 +59,24 @@ export class OrdersService {
           [w.quantity, p.id],
         );
         if (!res[1]) throw new BadRequestException(`"${p.title}" has only ${p.stock} left`);
-        lines.push({ productId: p.id, sku: p.sku, title: p.title, imageUrl: p.thumbnailUrl, unitPrice: p.price, quantity: w.quantity });
-        pricing.push({ unitPrice: p.price, quantity: w.quantity, freeShipping: p.freeShipping });
+        const q = quote.lines.find((l) => l.productId === p.id)!;
+        lines.push({
+          productId: p.id, sku: p.sku, title: p.title, imageUrl: p.thumbnailUrl,
+          unitPrice: q.unitPrice, quantity: w.quantity, listPrice: p.price, lineTotal: q.lineTotal,
+        });
       }
-      const totals = computeTotals(pricing);
+      // Reserve limited lightning-deal units and coupon redemptions.
+      await this.promotions.claim(tx, quote.applied);
       return tx.getRepository(Order).save(
         tx.getRepository(Order).create({
           orderNumber: newOrderNumber(),
           userId,
           items: lines,
-          ...totals,
+          subtotal: quote.subtotal,
+          shippingFee: quote.shippingFee,
+          discount: round2(quote.couponDiscount + quote.bankDiscount),
+          discounts: quote.applied,
+          total: quote.total,
           shippingAddress: input.address,
           paymentMethod: input.paymentMethod,
           status: input.paymentMethod === PaymentMethod.COD ? OrderStatus.CONFIRMED_COD : OrderStatus.PENDING_PAYMENT,
@@ -92,7 +115,10 @@ export class OrdersService {
       if (!order) throw new NotFoundException('Order not found');
       const releasing = [OrderStatus.CANCELLED, OrderStatus.PAYMENT_FAILED].includes(status);
       const alreadyReleased = [OrderStatus.CANCELLED, OrderStatus.PAYMENT_FAILED].includes(order.status);
-      if (releasing && !alreadyReleased) await this.releaseStock(tx, order);
+      if (releasing && !alreadyReleased) {
+        await this.releaseStock(tx, order);
+        await this.promotions.release(tx, order.discounts);
+      }
       order.status = status;
       return tx.getRepository(Order).save(order);
     });

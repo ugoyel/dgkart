@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiProperty, ApiPropertyOptional, ApiTags } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsOptional, IsUUID, Max, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsEnum, IsIn, IsInt, IsOptional, IsString, IsUUID, Length, Max, Min, ValidateNested } from 'class-validator';
 import { PageQuery } from '../../common/pagination';
 import { AuthUser, CurrentUser } from '../../common/roles';
 import { AddressDto } from '../users/users.controller';
@@ -18,6 +18,11 @@ class PlaceOrderDto {
   @ApiProperty({ enum: PaymentMethod }) @IsEnum(PaymentMethod) paymentMethod!: PaymentMethod;
   @ApiPropertyOptional({ type: [LineDto], description: 'Buy It Now items; omit to check out the cart' })
   @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => LineDto) items?: LineDto[];
+  @ApiPropertyOptional({ description: 'Promo code' }) @IsOptional() @IsString() @Length(0, 30) couponCode?: string;
+  @ApiPropertyOptional({ type: [String], description: 'Clip coupons ticked on product pages' })
+  @IsOptional() @IsArray() @IsUUID('all', { each: true }) clippedCouponIds?: string[];
+  @ApiPropertyOptional({ description: 'Bank for bank offers, e.g. "HDFC Bank"' }) @IsOptional() @IsString() @Length(0, 80) bank?: string;
+  @ApiPropertyOptional({ enum: ['CREDIT', 'DEBIT', 'ANY'] }) @IsOptional() @IsIn(['CREDIT', 'DEBIT', 'ANY']) cardType?: 'CREDIT' | 'DEBIT' | 'ANY';
 }
 
 @ApiTags('orders')

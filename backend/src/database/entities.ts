@@ -5,7 +5,8 @@ import { Category } from '../modules/catalog/category.entity';
 import { ProductImage } from '../modules/catalog/product-image.entity';
 import { Product } from '../modules/catalog/product.entity';
 import { Order } from '../modules/orders/order.entity';
+import { AppSetting, Promotion } from '../modules/promotions/promotion.entity';
 import { User } from '../modules/users/user.entity';
 import { WatchItem } from '../modules/watchlist/watch-item.entity';
 
-export const ENTITIES = [User, Category, Product, ProductImage, CartItem, WatchItem, Order, ImportJob, ImageMapping];
+export const ENTITIES = [User, Category, Product, ProductImage, CartItem, WatchItem, Order, ImportJob, ImageMapping, Promotion, AppSetting];

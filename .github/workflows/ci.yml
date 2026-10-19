@@ -40,6 +40,7 @@ jobs:
           for i in $(seq 1 30); do curl -sf localhost:3000/health && break; sleep 1; done
           sleep 3
           node test/smoke.mjs || (cat api.log; exit 1)
+          node test/promotions-smoke.mjs || (cat api.log; exit 1)
 
   mobile:
     runs-on: ubuntu-latest
