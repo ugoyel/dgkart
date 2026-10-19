@@ -34,6 +34,27 @@
 
 `ADMIN_PHONE` (default `+919910123503`) is the admin; the role is recalculated on every login, so changing the variable takes effect immediately. Everyone else is `USER`. Admin endpoints are under `/api/v1/admin/*` and guarded server-side; the app only hides the UI.
 
-## Website later
+## Website
 
-The Flutter code already builds for web (`flutter build web`) with responsive layouts: bottom tabs become a side rail at ≥ 900 px, grids grow from 2 to 6 columns and content is capped at 1280 px. Routes are URL-shaped (`/product/:id`, `/search/results?q=`), so they map directly to web URLs. You can ship the Flutter web build as the website, or build a separate Next.js/React site on the same API and design tokens (`mobile/lib/core/theme/app_theme.dart`).
+`web/` is a React + Vite site on the same API. Its data layer is a `DataSource` interface with two adapters. `ApiDataSource` calls `/api/v1`. `DemoDataSource` runs the app's sample catalogue in the browser, so the site can be hosted and shown before the API is live. Pages depend only on the interface.
+
+The Flutter app still builds for web too (`flutter build web`), but `web/` is the shopper-facing website.
+
+## Festivals and offers
+
+`backend/src/modules/promotions/engine/` is plain TypeScript with no framework imports. It holds:
+
+- the festival calendar and theme resolution
+- reminder scheduling
+- draft offer generation
+- cart pricing (quote)
+
+The API's `PromotionsModule` and the website both import it, so the prices shown in the browser are the same prices the API charges.
+
+- **Storage:** offers live in the `promotions` table. Admin edits to the calendar and dismissed reminders are stored in `app_settings`.
+- **Orders:** an order stores the offers applied to it in `discounts`. Lightning deal units and coupon uses are claimed when the order is placed and released when it is cancelled or the payment fails.
+- **Endpoints:**
+  - public: `GET /promotions`, `POST /promotions/quote`
+  - admin: `/admin/offers`, `/admin/festivals`, `/admin/notifications`
+- **The Android app:** it does not show deals yet, but server-side deals already apply to its orders.
+- **Database changes:** the new columns (`orders.discount`, `orders.discounts`) and tables are created by `DB_SYNC` in development. Add a migration before production.

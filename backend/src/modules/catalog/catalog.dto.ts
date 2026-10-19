@@ -23,6 +23,9 @@ export class ProductSearchQuery extends PageQuery {
   @ApiPropertyOptional()
   @IsOptional() @Transform(({ value }) => value === true || value === 'true') @IsBoolean() freeShipping?: boolean;
 
+  @ApiPropertyOptional({ description: 'Comma separated product ids (deal strips on the website)' })
+  @IsOptional() @IsString() @MaxLength(4000) ids?: string;
+
   @ApiPropertyOptional({ enum: SORTS, default: 'best' })
   @IsOptional() @IsIn(SORTS as unknown as string[]) sort: Sort = 'best';
 }

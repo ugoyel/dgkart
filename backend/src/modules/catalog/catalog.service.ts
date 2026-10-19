@@ -35,6 +35,11 @@ export class CatalogService {
       const children = await this.categories.find({ where: { parentId: cat.id } });
       qb.andWhere('p.categoryId IN (:...cats)', { cats: [cat.id, ...children.map((c) => c.id)] });
     }
+    if (q.ids) {
+      const ids = q.ids.split(',').map((s) => s.trim()).filter((s) => /^[0-9a-f-]{36}$/i.test(s)).slice(0, 100);
+      if (!ids.length) return toPage([], 0, q);
+      qb.andWhere('p.id IN (:...ids)', { ids });
+    }
     if (q.minPrice !== undefined) qb.andWhere('p.price >= :min', { min: q.minPrice });
     if (q.maxPrice !== undefined) qb.andWhere('p.price <= :max', { max: q.maxPrice });
     if (q.condition) qb.andWhere('p.condition = :cond', { cond: q.condition });

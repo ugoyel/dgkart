@@ -44,7 +44,7 @@ export function dueReminders(festivals: Festival[], offers: Offer[], now: Date, 
       title: ready ? `${occ.festival.name} offers are scheduled` : `${occ.festival.name} is ${when}: set up your offers`,
       body: ready
         ? `${occ.festival.name} starts ${startLabel}. Your linked offers are active; review stock limits and banners.`
-        : `${occ.festival.name} starts ${startLabel}. The site switches to the ${occ.festival.name} theme ${occ.festival.themeLeadDays} days before. ` +
+        : `${occ.festival.name} starts ${startLabel}. The site switches to the ${occ.festival.name} theme ${leadLabel(occ.festival.themeLeadDays)}. ` +
           `Create the draft offers (festival sale, coupon, bank offer, lightning deals) and activate them.`,
       dueAt: new Date(occ.start.getTime() - tier * 7 * DAY).toISOString(),
       festivalStart: occ.festival.dates[occ.year].start,
@@ -61,3 +61,5 @@ export function dueReminders(festivals: Festival[], offers: Offer[], now: Date, 
 export function pendingCount(reminders: AdminReminder[]): number {
   return reminders.filter((r) => !r.offersReady).length;
 }
+
+const leadLabel = (days: number) => (days === 0 ? 'on the day' : days === 1 ? '1 day before' : `${days} days before`);

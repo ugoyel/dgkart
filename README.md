@@ -5,6 +5,7 @@ Marketplace shopping app for **DGkart** (DGkart.com): a Flutter app for Android 
 | Folder | What it is |
 | --- | --- |
 | [`mobile/`](mobile) | Flutter app: phone OTP login, home/deals, search with filters, product page, watchlist, cart, checkout (Razorpay / COD), orders, admin panel |
+| [`web/`](web) | Website for phones and laptops (React): storefront, deals, checkout, admin panel, automatic festival themes and offer reminders |
 | [`backend/`](backend) | REST API (`/api/v1`, OpenAPI docs at `/docs`): auth, catalogue, cart, orders, payments, bulk Excel import, image upload, demo data |
 | [`docs/`](docs) | Setup, architecture, Excel import guide, Play Store release checklist, store graphics |
 
@@ -13,6 +14,14 @@ Marketplace shopping app for **DGkart** (DGkart.com): a Flutter app for Android 
 Download **[dgkart-demo.apk](https://github.com/ugoyel/dgkart/releases/download/demo/dgkart-demo.apk)** on an Android phone and open it (allow "install unknown apps" when asked). This offline demo runs entirely on the phone with 499 sample products: sign in with any number and OTP `123456` (use 9910123503 for the admin panel); payments are simulated and nothing is saved after the app closes. It is rebuilt by the *Demo APK* workflow on every push.
 
 Build it yourself with `flutter build apk --dart-define=DEMO_MODE=true`; regenerate its catalogue with `node mobile/tool/build_demo_data.mjs` while the API is running.
+
+## Website
+
+```bash
+cd web && npm install && npm run dev     # http://localhost:5173, demo data in the browser
+```
+
+The website runs on its own with demo data, or against the API with `VITE_DATA_MODE=api`. Before each Indian festival it switches its theme automatically and reminds the admin to set up offers. See [web/README.md](web/README.md) for hosting, the festival calendar and how offers stack.
 
 ## Quick start (local, no accounts needed)
 
@@ -33,4 +42,5 @@ Local mode uses a **test OTP (`123456`)** and a **simulated payment sheet**, so 
 1. [docs/SETUP.md](docs/SETUP.md): Firebase phone OTP, Razorpay keys, deploying the API and image storage.
 2. [docs/PLAY_STORE.md](docs/PLAY_STORE.md): signing key, building the `.aab`, Play Console listing, data safety, testing track.
 3. [docs/IMPORT_GUIDE.md](docs/IMPORT_GUIDE.md): Excel product sheet, image mapping sheet and bulk image upload.
-4. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the layers fit together and how to swap technologies or add the website.
+4. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the layers fit together and how to swap technologies.
+5. [web/README.md](web/README.md): hosting the website, festival dates and offers.
