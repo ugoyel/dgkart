@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FreeDeliveryBar } from '../components/Extras';
 import { PriceSummary } from '../components/PriceSummary';
 import { Empty, Img, QtyStepper, Spinner, useTitle } from '../components/ui';
 import { ds } from '../data';
@@ -49,6 +50,7 @@ export function CartPage() {
     );
   }
 
+  const count = items.reduce((s, i) => s + i.quantity, 0);
   return (
     <div className="container cart-page">
       <h1 className="page-title">Shopping cart</h1>
@@ -78,6 +80,7 @@ export function CartPage() {
           })}
         </section>
         <aside>
+          <FreeDeliveryBar subtotal={quote?.subtotal ?? items.reduce((s, i) => s + i.product.price * i.quantity, 0)} />
           <PriceSummary quote={quote} />
           <form className="card coupon-form" onSubmit={apply}>
             <label htmlFor="coupon">Have a promo code?</label>
@@ -90,7 +93,7 @@ export function CartPage() {
             <p className="muted small">Bank offers are applied at checkout when you pick your card.</p>
           </form>
           <button className="btn btn-accent btn-block" onClick={() => nav(user ? '/checkout' : '/login?next=/checkout')}>
-            Proceed to buy ({items.reduce((s, i) => s + i.quantity, 0)} items)
+            Proceed to buy ({count} {count === 1 ? 'item' : 'items'})
           </button>
         </aside>
       </div>

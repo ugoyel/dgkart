@@ -1,6 +1,7 @@
 import { productOffers } from '@engine';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { DeliveryCheck, RecentlyViewed, recordView } from '../components/Extras';
 import { Icon } from '../components/Icon';
 import { ClaimBar, Countdown, DealBadge, Empty, Img, PriceBlock, ProductCard, Rail, Spinner, Stars, useTitle } from '../components/ui';
 import { site } from '../config/site';
@@ -26,6 +27,9 @@ export function ProductPage() {
     setImg(0);
     setQty(1);
   }, [id]);
+  useEffect(() => {
+    if (p?.id) recordView(p.id);
+  }, [p?.id]);
   useEffect(() => {
     if (user) ds.watchlist().then((w) => setWatched(w.some((x) => x.id === id))).catch(() => {});
   }, [user, id]);
@@ -127,6 +131,7 @@ export function ProductPage() {
         <aside className="buy-box card">
           <PriceBlock product={p} />
           <p className="muted small"><Icon name="truck" size={16} /> {p.freeShipping ? 'FREE delivery' : 'Delivery ₹40 (free over ₹499)'}</p>
+          <DeliveryCheck />
           <label className="qty-select">
             Quantity
             <select value={qty} onChange={(e) => setQty(Number(e.target.value))} disabled={!inStock}>
@@ -163,6 +168,7 @@ export function ProductPage() {
       {similar && similar.length > 0 && (
         <Rail title="Similar items">{similar.map((s) => <div key={s.id} className="rail-item"><ProductCard product={s} /></div>)}</Rail>
       )}
+      <RecentlyViewed key={p.id} exclude={p.id} />
     </div>
   );
 }

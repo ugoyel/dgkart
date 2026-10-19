@@ -1,5 +1,5 @@
 import { FormEvent, Fragment, ReactElement, useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { Empty, Img, ProductCard, Spinner, useTitle } from '../components/ui';
 import { config } from '../config/env';
@@ -91,8 +91,9 @@ export function Login() {
 
 function RequireUser({ children }: { children: (u: NonNullable<ReturnType<typeof useAuth>['user']>) => ReactElement }) {
   const { user, ready } = useAuth();
+  const loc = useLocation();
   if (!ready) return <div className="container"><Spinner /></div>;
-  if (!user) return <Navigate to={`/login?next=${encodeURIComponent(window.location.pathname)}`} replace />;
+  if (!user) return <Navigate to={`/login?next=${encodeURIComponent(loc.pathname + loc.search)}`} replace />;
   return children(user);
 }
 

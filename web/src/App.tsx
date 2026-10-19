@@ -1,5 +1,6 @@
-import { Suspense, lazy } from 'react';
-import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom';
+import { ReactNode, Suspense, lazy } from 'react';
+import { BrowserRouter, HashRouter, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Layout } from './components/Layout';
 import { Spinner } from './components/ui';
 import { config } from './config/env';
@@ -14,37 +15,47 @@ import { Categories, Search } from './pages/Search';
 import { AppProviders } from './state/AppState';
 
 const AdminRoutes = lazy(() => import('./pages/admin'));
-const Router = config.router === 'hash' ? HashRouter : BrowserRouter;
+const Router = config.router === 'hash' ? HashRouter : config.router === 'memory' ? MemoryRouter : BrowserRouter;
 
 export function App() {
   return (
-    <Router basename={config.router === 'hash' ? undefined : config.basePath.replace(/\/$/, '') || undefined}>
-      <AppProviders>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/deals" element={<Deals />} />
-            <Route path="/product/:id" element={<ProductPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/account" element={<AccountPage />} />
-            <Route path="/account/addresses" element={<AddressesPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/order/:id" element={<OrderPage />} />
-            <Route path="/watchlist" element={<WatchlistPage />} />
-            <Route path="/about" element={<InfoPage page="about" />} />
-            <Route path="/help" element={<InfoPage page="help" />} />
-            <Route path="/privacy" element={<InfoPage page="privacy" />} />
-            <Route path="/terms" element={<InfoPage page="terms" />} />
-            <Route path="/app" element={<InfoPage page="app" />} />
-            <Route path="/admin/*" element={<Suspense fallback={<Spinner />}><AdminRoutes /></Suspense>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
-      </AppProviders>
+    <Router basename={config.router !== 'browser' ? undefined : config.basePath.replace(/\/$/, '') || undefined}>
+      <ErrorBoundary>
+        <AppProviders>
+          <Layout>
+            <PageBoundary>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/deals" element={<Deals />} />
+                <Route path="/product/:id" element={<ProductPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/account" element={<AccountPage />} />
+                <Route path="/account/addresses" element={<AddressesPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/order/:id" element={<OrderPage />} />
+                <Route path="/watchlist" element={<WatchlistPage />} />
+                <Route path="/about" element={<InfoPage page="about" />} />
+                <Route path="/help" element={<InfoPage page="help" />} />
+                <Route path="/privacy" element={<InfoPage page="privacy" />} />
+                <Route path="/terms" element={<InfoPage page="terms" />} />
+                <Route path="/app" element={<InfoPage page="app" />} />
+                <Route path="/admin/*" element={<Suspense fallback={<Spinner />}><AdminRoutes /></Suspense>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </PageBoundary>
+          </Layout>
+        </AppProviders>
+      </ErrorBoundary>
     </Router>
   );
+}
+
+/** Keeps the header and footer on screen if one page fails, and clears the error when the route changes. */
+function PageBoundary({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
 }

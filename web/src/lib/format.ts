@@ -1,13 +1,19 @@
 import { site } from '../config/site';
 
 const inr = new Intl.NumberFormat(site.locale, { style: 'currency', currency: site.currency, maximumFractionDigits: 0 });
-const inr2 = new Intl.NumberFormat(site.locale, { style: 'currency', currency: site.currency, minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const inr2 = new Intl.NumberFormat(site.locale, { style: 'currency', currency: site.currency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /** ₹1,299 (paise shown only when present). */
 export const money = (n: number) => (Number.isInteger(n) ? inr.format(n) : inr2.format(n));
 
-/** 2.9K, 1.2L style compact counts. */
-export const compact = (n: number) => new Intl.NumberFormat(site.locale, { notation: 'compact', maximumFractionDigits: 1 }).format(n);
+/** 950, 2.9K, 1.2L, 3.4Cr: Indian compact counts (browsers disagree on en-IN "compact", some print 2.9T). */
+export function compact(n: number): string {
+  const one = (x: number) => String(Math.round(x * 10) / 10);
+  if (Math.abs(n) < 1000) return String(Math.round(n));
+  if (Math.abs(n) < 100_000) return `${one(n / 1000)}K`;
+  if (Math.abs(n) < 10_000_000) return `${one(n / 100_000)}L`;
+  return `${one(n / 10_000_000)}Cr`;
+}
 
 export const percentOff = (price: number, mrp?: number | null) => (mrp && mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0);
 

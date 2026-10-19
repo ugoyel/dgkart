@@ -1,6 +1,6 @@
 import { OFFER_LABELS, Offer, claimedPercent } from '@engine';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { site } from '../config/site';
 import type { Product } from '../data';
 import { compact, countdown, money, percentOff } from '../lib/format';
@@ -19,6 +19,7 @@ export function Logo({ light = false }: { light?: boolean }) {
 
 export function Img({ src, alt, className }: { src: string | null | undefined; alt: string; className?: string }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   if (!src || failed) {
     return (
       <div className={`img-fallback ${className ?? ''}`} role="img" aria-label={alt}>
@@ -26,7 +27,21 @@ export function Img({ src, alt, className }: { src: string | null | undefined; a
       </div>
     );
   }
-  return <img src={src} alt={alt} className={className} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
+  // Fade pictures in as they arrive instead of popping in line by line.
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`img-fade${loaded ? ' loaded' : ''}${className ? ` ${className}` : ''}`}
+      loading="lazy"
+      decoding="async"
+      ref={(el) => {
+        if (el?.complete && el.naturalWidth && !loaded) setLoaded(true);
+      }}
+      onLoad={() => setLoaded(true)}
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 export function Stars({ rating, count }: { rating: number; count?: number }) {
@@ -59,7 +74,7 @@ export function ClaimBar({ offer }: { offer: Offer }) {
   const pct = claimedPercent(offer);
   return (
     <div className="claim" aria-label={`${pct}% claimed`}>
-      <div className="claim-track"><div className="claim-fill" style={{ width: `${pct}%` }} /></div>
+      <div className="claim-track"><div className="claim-fill" style={{ transform: `scaleX(${pct / 100})` }} /></div>
       <span>{pct}% claimed</span>
     </div>
   );
@@ -85,6 +100,7 @@ export function PriceBlock({ product, large = false }: { product: Product; large
 export function WatchHeart({ productId }: { productId: string }) {
   const watch = useWatch();
   const nav = useNavigate();
+  const loc = useLocation();
   const on = watch.has(productId);
   return (
     <button
@@ -95,7 +111,7 @@ export function WatchHeart({ productId }: { productId: string }) {
       onClick={async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!(await watch.toggle(productId))) nav(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+        if (!(await watch.toggle(productId))) nav(`/login?next=${encodeURIComponent(loc.pathname + loc.search)}`);
       }}
     >
       <Icon name={on ? 'heartFill' : 'heart'} size={20} />

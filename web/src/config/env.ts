@@ -7,7 +7,8 @@ export const config = {
   /** demo = in-browser sample data; api = the DGkart API. */
   dataMode: (env.VITE_DATA_MODE === 'api' && apiBase ? 'api' : 'demo') as 'api' | 'demo',
   apiBaseUrl: apiBase,
-  router: (env.VITE_ROUTER === 'hash' ? 'hash' : 'browser') as 'hash' | 'browser',
+  /** browser = normal URLs; hash = /#/path for hosts without rewrites; memory = never touches the address bar (embedded previews). */
+  router: (['hash', 'memory'].includes(env.VITE_ROUTER) ? env.VITE_ROUTER : 'browser') as 'browser' | 'hash' | 'memory',
   basePath: env.BASE_URL ?? '/',
   firebase: {
     apiKey: env.VITE_FIREBASE_API_KEY as string | undefined,

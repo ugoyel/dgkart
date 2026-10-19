@@ -21,7 +21,7 @@ export interface BannerItem extends BannerSlide {
 
 const categoryOf = (link: string) => link.match(/[?&]category=([a-z0-9-]+)/)?.[1] ?? null;
 
-export function BannerView({ b, eager = false }: { b: BannerItem; eager?: boolean }) {
+export function BannerView({ b, eager = true }: { b: BannerItem; eager?: boolean }) {
   const body = (
     <div className="banner" style={{ background: b.background, color: b.textColor }}>
       {b.image && <div className="banner-photo" style={{ backgroundImage: cssUrl(b.image) }} />}
