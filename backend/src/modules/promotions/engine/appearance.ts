@@ -7,7 +7,8 @@ export type SlideEffect = 'slide' | 'fade' | 'zoom';
 export const SLIDE_EFFECTS: SlideEffect[] = ['slide', 'fade', 'zoom'];
 export type SlideEasing = 'smooth' | 'ease-in-out' | 'linear' | 'bounce';
 export const SLIDE_EASINGS: Record<SlideEasing, string> = {
-  smooth: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+  // Gentle start and a long settle (ease-in-out), so autoplay never lurches.
+  smooth: 'cubic-bezier(0.45, 0.05, 0.15, 1)',
   'ease-in-out': 'ease-in-out',
   linear: 'linear',
   bounce: 'cubic-bezier(0.34, 1.4, 0.64, 1)',
@@ -100,7 +101,7 @@ export const DEFAULT_APPEARANCE: Appearance = {
   saleSlides: true,
   categoryBanners: {},
   autoCategoryBanners: true,
-  slider: { effect: 'slide', speedMs: 650, intervalMs: 5000, autoplay: true, easing: 'smooth' },
+  slider: { effect: 'slide', speedMs: 750, intervalMs: 5000, autoplay: true, easing: 'smooth' },
 };
 
 /** Saved settings laid over the defaults (so new settings get sensible values). */

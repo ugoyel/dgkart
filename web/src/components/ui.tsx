@@ -74,7 +74,7 @@ export function ClaimBar({ offer }: { offer: Offer }) {
   const pct = claimedPercent(offer);
   return (
     <div className="claim" aria-label={`${pct}% claimed`}>
-      <div className="claim-track"><div className="claim-fill" style={{ width: `${pct}%` }} /></div>
+      <div className="claim-track"><div className="claim-fill" style={{ transform: `scaleX(${pct / 100})` }} /></div>
       <span>{pct}% claimed</span>
     </div>
   );
