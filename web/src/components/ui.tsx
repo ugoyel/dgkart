@@ -1,6 +1,6 @@
 import { OFFER_LABELS, Offer, claimedPercent } from '@engine';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { site } from '../config/site';
 import type { Product } from '../data';
 import { compact, countdown, money, percentOff } from '../lib/format';
@@ -85,6 +85,7 @@ export function PriceBlock({ product, large = false }: { product: Product; large
 export function WatchHeart({ productId }: { productId: string }) {
   const watch = useWatch();
   const nav = useNavigate();
+  const loc = useLocation();
   const on = watch.has(productId);
   return (
     <button
@@ -95,7 +96,7 @@ export function WatchHeart({ productId }: { productId: string }) {
       onClick={async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!(await watch.toggle(productId))) nav(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+        if (!(await watch.toggle(productId))) nav(`/login?next=${encodeURIComponent(loc.pathname + loc.search)}`);
       }}
     >
       <Icon name={on ? 'heartFill' : 'heart'} size={20} />

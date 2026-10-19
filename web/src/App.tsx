@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, HashRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Spinner } from './components/ui';
 import { config } from './config/env';
@@ -14,11 +14,11 @@ import { Categories, Search } from './pages/Search';
 import { AppProviders } from './state/AppState';
 
 const AdminRoutes = lazy(() => import('./pages/admin'));
-const Router = config.router === 'hash' ? HashRouter : BrowserRouter;
+const Router = config.router === 'hash' ? HashRouter : config.router === 'memory' ? MemoryRouter : BrowserRouter;
 
 export function App() {
   return (
-    <Router basename={config.router === 'hash' ? undefined : config.basePath.replace(/\/$/, '') || undefined}>
+    <Router basename={config.router !== 'browser' ? undefined : config.basePath.replace(/\/$/, '') || undefined}>
       <AppProviders>
         <Layout>
           <Routes>
